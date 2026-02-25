@@ -1,0 +1,133 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+   <title>Will You Be My Valentine?</title>
+   <style>
+       body {
+           margin: 0;
+           padding: 0;
+           min-height: 100vh;
+           background: #0088cc;
+           display: flex;
+           justify-content: center;
+           align-items: center;
+           font-family: 'Comic Sans MS', cursive;
+       }
+
+
+       body {
+           background: linear-gradient(#0088cc);
+           background-size: 400% 400%;
+           animation: rainbow 3s ease infinite;
+           font-family: 'Comic Sans MS', cursive;
+           text-align: center;
+           padding: 20px;
+           min-height: 100vh;
+           margin: 0;
+           overflow-x: hidden;
+       }
+      
+      
+       .container {
+           background: rgba(255, 255, 255, 0.95);
+           border-radius: 20px;
+           padding: 40px;
+           box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+           max-width: 800px;
+           margin: 50px auto;
+           position: relative;
+       }
+  
+       .container {
+           text-align: center;
+           padding: 40px;
+       }
+      
+       h1 {
+           color: #0088cc;
+           font-size: 3em;
+           margin-bottom: 30px;
+           text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+           font-family: 'Comic Sans MS', cursive;
+       }
+  
+       .heart {
+           font-size: 4em;
+           color: #ff1493;
+           animation: heartbeat 1.5s ease-in-out infinite;
+       }
+      
+       @keyframes heartbeat {
+           0%, 100% { transform: scale(1); }
+           50% { transform: scale(1.1); }
+       }
+      
+       .buttons {
+           margin-top: 40px;
+       }
+      
+       .btn {
+           font-size: 1.5em;
+           padding: 15px 30px;
+           margin: 0 20px;
+           border: none;
+           border-radius: 50px;
+           cursor: pointer;
+           text-decoration: none;
+           display: inline-block;
+           transition: all 0.3s ease;
+           font-family: 'Comic Sans MS', cursive;
+           font-weight: bold;
+       }
+      
+       .yes-btn {
+           background: linear-gradient(45deg, #d91cbc, #ff1493);
+           color: white;
+           box-shadow: 0 5px 15px rgba(255, 20, 147, 0.4);
+       }
+      
+       .yes-btn:hover {
+           transform: translateY(-3px);
+           box-shadow: 0 8px 25px rgba(179, 8, 99, 0.6);
+       }
+      
+       .no-btn {
+           background: linear-gradient(45deg, #05338f, #0d6aeb);
+           color: white;
+           box-shadow: 0 5px 15px rgba(27, 8, 148, 0.4);
+       }
+      
+       .no-btn:hover {
+           transform: translateY(-3px);
+           box-shadow: 0 8px 25px rgba(22, 63, 211, 0.6);
+       }
+      
+       p {
+           font-size: 1.2em;
+           color: #0088cc;
+           margin: 30px 0;
+           font-family: 'Comic Sans MS', cursive;
+       }
+      
+       img {
+           display: block;
+           margin: 20px auto;
+       }
+   </style>
+</head>
+<body>
+   <div class="container">
+       <div class="heart">💖</div>
+       <h1>Will You Be My Valentine?</h1>
+       <img src="Valentines Day.gif" width="400" alt="Valentine's Day">
+       <p>You make my heart skip a beat!</p>
+      
+       <div class="buttons">
+           <a href="yess.html" class="btn yes-btn">YES!</a>
+           <a href="noo.html" class="btn no-btn">No...</a>
+       </div>
+   </div>
+</body>
+</html>
+

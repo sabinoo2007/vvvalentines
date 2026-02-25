@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Stolen Rose — A Little Prince Mystery</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Lato:ital,wght@0,300;0,400;1,300&family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sky-deep: #0a0e2a;
+  --sky-mid: #1a1f4e;
+  --sky-dawn: #2d1b5e;
+  --gold: #f5c842;
+  --gold-pale: #fde68a;
+  --rose: #e8526a;
+  --rose-pale: #fca5a5;
+  --green-planet: #4ade80;
+  --sand: #f5e6c8;
+  --ink: #1a1035;
+  --silver: #c8d8f0;
+  --asteroid: #b8a898;
+  --white: #fefefe;
+  --violet: #7c3aed;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--sky-deep);
+  color: var(--sand);
+  font-family: 'Lato', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* ══════════════════════════════
+   CANVAS / STARFIELD
+══════════════════════════════ */
+#starfield {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ══════════════════════════════
+   SHOOTING STARS
+══════════════════════════════ */
+.shooting-star {
+  position: fixed;
+  width: 2px;
+  height: 2px;
+  background: white;
+  border-radius: 50%;
+  z-index: 1;
+  pointer-events: none;
+  animation: shoot var(--dur,1.8s) linear var(--delay,0s) infinite;
+  opacity: 0;
+}
+.shooting-star::after {
+  content:'';
+  position: absolute;
+  top: 50%; left: 0;
+  transform: translateY(-50%);
+  width: 80px; height: 1px;
+  background: linear-gradient(to left, rgba(255,255,255,0.8), transparent);
+}
+@keyframes shoot {
+  0%   { opacity: 0; transform: translate(0,0); }
+  5%   { opacity: 1; }
+  100% { opacity: 0; transform: translate(300px, 150px); }
+}
+
+/* ══════════════════════════════
+   MAIN WRAPPER
+══════════════════════════════ */
+#game-wrap {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 16px 80px;
+}
+
+/* ══════════════════════════════
+   TITLE SCREEN
+══════════════════════════════ */
+#title-screen {
+  width: 100%;
+  max-width: 900px;
+  text-align: center;
+  padding-top: 40px;
+  animation: fadeSlideUp 1.2s ease both;
+}
+
+@keyframes fadeSlideUp {
+  from { opacity:0; transform: translateY(40px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+.title-planet-svg {
+  display: block;
+  margin: 0 auto 20px;
+  animation: floatOrbit 7s ease-in-out infinite;
+  filter: drop-shadow(0 0 30px rgba(245,200,66,0.5));
+}
+
+@keyframes floatOrbit {
+  0%,100% { transform: translateY(0) rotate(-1deg); }
+  50%      { transform: translateY(-18px) rotate(1deg); }
+}
+
+.title-main {
+  font-family: 'Great Vibes', cursive;
+  font-size: clamp(2.8rem, 8vw, 5.5rem);
+  color: var(--gold);
+  text-shadow: 0 0 40px rgba(245,200,66,0.6), 0 2px 6px rgba(0,0,0,0.8);
+  line-height: 1.1;
+  animation: titleGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes titleGlow {
+  from { text-shadow: 0 0 30px rgba(245,200,66,0.5), 0 2px 6px rgba(0,0,0,0.8); }
+  to   { text-shadow: 0 0 60px rgba(245,200,66,0.9), 0 0 100px rgba(245,200,66,0.3), 0 2px 6px rgba(0,0,0,0.8); }
+}
+
+.title-sub {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: clamp(0.9rem, 2.5vw, 1.3rem);
+  color: var(--silver);
+  letter-spacing: 3px;
+  margin-top: 8px;
+  opacity: 0.8;
+}
+
+.title-intro {
+  max-width: 600px;
+  margin: 32px auto 0;
+  font-size: 1.05rem;
+  line-height: 1.9;
+  color: rgba(248,235,200,0.85);
+  font-style: italic;
+}
+
+/* ══════════════════════════════
+   SCENE CARD
+══════════════════════════════ */
+#scene-card {
+  width: 100%;
+  max-width: 860px;
+  margin-top: 32px;
+  background: linear-gradient(160deg, rgba(20,14,50,0.97) 0%, rgba(8,6,24,0.99) 100%);
+  border: 1px solid rgba(245,200,66,0.2);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 0 80px rgba(80,40,160,0.25), 0 20px 60px rgba(0,0,0,0.6);
+  animation: cardIn 0.5s cubic-bezier(0.34,1.2,0.64,1) both;
+}
+
+@keyframes cardIn {
+  from { opacity:0; transform: scale(0.94) translateY(20px); }
+  to   { opacity:1; transform: scale(1) translateY(0); }
+}
+
+/* ── Planet illustration header ── */
+#scene-illustration {
+  width: 100%;
+  height: 220px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+#scene-illustration svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#scene-illustration .scene-svg-art {
+  position: relative;
+  z-index: 2;
+  animation: sceneArtFloat 5s ease-in-out infinite;
+}
+
+@keyframes sceneArtFloat {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+
+/* ── Planet label ── */
+#planet-label {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.72rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--gold);
+  border: 1px solid rgba(245,200,66,0.3);
+  padding: 5px 18px;
+  background: rgba(10,5,30,0.7);
+  backdrop-filter: blur(4px);
+  white-space: nowrap;
+}
+
+/* ── Clue tracker ── */
+#clue-panel {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 12px 28px;
+  min-height: 50px;
+  border-bottom: 1px solid rgba(245,200,66,0.1);
+  background: rgba(0,0,0,0.2);
+}
+
+.clue-tag {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.72rem;
+  font-style: italic;
+  color: var(--ink);
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-pale) 100%);
+  padding: 4px 12px;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  animation: clueAppear 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+  white-space: nowrap;
+}
+
+@keyframes clueAppear {
+  from { transform: scale(0) rotate(-8deg); opacity:0; }
+  to   { transform: scale(1) rotate(0);     opacity:1; }
+}
+
+/* ── Body ── */
+#scene-body {
+  padding: 36px 44px 12px;
+}
+
+#scene-narrative {
+  font-size: 1.05rem;
+  line-height: 1.95;
+  color: rgba(248,235,200,0.9);
+}
+
+#scene-narrative em {
+  color: var(--gold-pale);
+  font-style: italic;
+}
+
+#scene-narrative strong {
+  color: var(--rose-pale);
+  font-weight: 400;
+  font-family: 'Playfair Display', serif;
+}
+
+#scene-narrative .quote {
+  display: block;
+  margin: 20px 0;
+  padding: 16px 24px;
+  border-left: 3px solid var(--gold);
+  background: rgba(245,200,66,0.06);
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--gold-pale);
+  border-radius: 0 4px 4px 0;
+}
+
+.insight-box {
+  margin: 22px 0 8px;
+  padding: 14px 20px;
+  border-left: 3px solid var(--rose);
+  background: rgba(232,82,106,0.08);
+  font-size: 0.9rem;
+  font-style: italic;
+  color: rgba(252,165,165,0.85);
+  border-radius: 0 4px 4px 0;
+}
+
+.insight-box::before {
+  content: '✦ ';
+  color: var(--rose);
+}
+
+/* ── Choices ── */
+#choices-wrap {
+  padding: 24px 44px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.choice-btn {
+  background: transparent;
+  border: 1px solid rgba(245,200,66,0.25);
+  color: var(--sand);
+  font-family: 'Lato', sans-serif;
+  font-weight: 300;
+  font-size: 1rem;
+  line-height: 1.55;
+  padding: 16px 24px 16px 56px;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.28s ease;
+  border-radius: 4px;
+}
+
+.choice-btn::before {
+  content: attr(data-idx);
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'Great Vibes', cursive;
+  font-size: 1.3rem;
+  color: var(--gold);
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.choice-btn:hover {
+  background: rgba(245,200,66,0.08);
+  border-color: rgba(245,200,66,0.55);
+  color: #fff;
+  transform: translateX(5px);
+  box-shadow: 0 0 20px rgba(245,200,66,0.15), inset 0 0 20px rgba(245,200,66,0.04);
+}
+
+.choice-btn:hover::before { opacity: 1; }
+
+.choice-btn.danger {
+  border-color: rgba(232,82,106,0.3);
+}
+.choice-btn.danger:hover {
+  background: rgba(232,82,106,0.1);
+  border-color: rgba(232,82,106,0.6);
+  box-shadow: 0 0 20px rgba(232,82,106,0.2);
+}
+
+.choice-btn:active { transform: translateX(3px) scale(0.99); }
+
+/* ── Progress stars ── */
+#progress-stars {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  padding: 20px 0 0;
+}
+
+.p-star {
+  font-size: 1rem;
+  opacity: 0.2;
+  transition: all 0.4s;
+  filter: grayscale(1);
+}
+.p-star.lit {
+  opacity: 1;
+  filter: none;
+  animation: starPop 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+  text-shadow: 0 0 12px var(--gold);
+}
+@keyframes starPop {
+  from { transform: scale(0); }
+  to   { transform: scale(1); }
+}
+
+/* ══════════════════════════════
+   WIN / LOSS SCREENS
+══════════════════════════════ */
+.outcome-wrap {
+  text-align: center;
+  padding: 20px 0 30px;
+}
+
+.outcome-icon {
+  font-size: 4.5rem;
+  display: block;
+  margin-bottom: 24px;
+  animation: outcomeBounce 2.5s ease-in-out infinite;
+}
+
+@keyframes outcomeBounce {
+  0%,100% { transform: scale(1) rotate(0deg); }
+  40%      { transform: scale(1.12) rotate(3deg); }
+  60%      { transform: scale(1.08) rotate(-2deg); }
+}
+
+.outcome-title {
+  font-family: 'Great Vibes', cursive;
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+
+.win-screen .outcome-title  { color: var(--gold); text-shadow: 0 0 40px rgba(245,200,66,0.7); }
+.loss-screen .outcome-title { color: var(--rose);  text-shadow: 0 0 40px rgba(232,82,106,0.7); }
+
+.outcome-text {
+  font-size: 1rem;
+  line-height: 1.9;
+  max-width: 580px;
+  margin: 0 auto 30px;
+  color: rgba(248,235,200,0.85);
+  font-style: italic;
+}
+
+.outcome-quote {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--gold-pale);
+  border-top: 1px solid rgba(245,200,66,0.2);
+  padding-top: 20px;
+  margin-top: 10px;
+}
+
+.btn-restart {
+  display: inline-block;
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 1rem;
+  padding: 12px 36px;
+  cursor: pointer;
+  border-radius: 3px;
+  letter-spacing: 1px;
+  transition: all 0.25s;
+}
+
+.btn-restart:hover {
+  background: rgba(245,200,66,0.1);
+  box-shadow: 0 0 25px rgba(245,200,66,0.35);
+}
+
+/* ══════════════════════════════
+   TRANSITION VEIL
+══════════════════════════════ */
+#veil {
+  position: fixed;
+  inset: 0;
+  background: var(--sky-deep);
+  z-index: 999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+#veil.active { opacity: 1; pointer-events: all; }
+
+/* ══════════════════════════════
+   RESPONSIVE
+══════════════════════════════ */
+@media (max-width: 600px) {
+  #scene-body   { padding: 24px 20px 12px; }
+  #choices-wrap { padding: 16px 20px 30px; }
+  #scene-illustration { height: 170px; }
+  .choice-btn { padding: 14px 16px 14px 46px; font-size: 0.93rem; }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--sky-deep); }
+::-webkit-scrollbar-thumb { background: var(--violet); border-radius: 3px; }
+
+/* Rose petal float */
+.petal {
+  position: fixed;
+  width: 8px; height: 12px;
+  background: radial-gradient(ellipse, var(--rose) 0%, #c0392b 100%);
+  border-radius: 80% 20% 80% 20%;
+  pointer-events: none;
+  z-index: 3;
+  animation: petalFall var(--pd, 6s) linear var(--pdel, 0s) infinite;
+  opacity: 0;
+}
+@keyframes petalFall {
+  0%   { opacity:0; transform: translate(0,0) rotate(0deg); }
+  10%  { opacity: 0.7; }
+  100% { opacity:0; transform: translate(var(--px,30px), 100vh) rotate(360deg); }
+}
+</style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+<div id="veil"></div>
+
+<!-- Shooting stars -->
+<div class="shooting-star" style="--delay:0s;   --dur:2.2s; top:12%; left:5%;  --px:250px;"></div>
+<div class="shooting-star" style="--delay:3.1s; --dur:1.8s; top:6%;  left:30%; --px:300px;"></div>
+<div class="shooting-star" style="--delay:6.5s; --dur:2.5s; top:20%; left:60%; --px:200px;"></div>
+<div class="shooting-star" style="--delay:9s;   --dur:1.6s; top:3%;  left:80%; --px:180px;"></div>
+
+<!-- Rose petals -->
+<div class="petal" style="left:15%; --pd:7s;  --pdel:0s;   --px:40px;"></div>
+<div class="petal" style="left:35%; --pd:9s;  --pdel:2s;   --px:-30px;"></div>
+<div class="petal" style="left:60%; --pd:8s;  --pdel:4s;   --px:50px;"></div>
+<div class="petal" style="left:80%; --pd:6s;  --pdel:1s;   --px:-20px;"></div>
+<div class="petal" style="left:50%; --pd:11s; --pdel:6s;   --px:60px;"></div>
+
+<div id="game-wrap">
+
+  <!-- TITLE -->
+  <div id="title-screen">
+    <svg class="title-planet-svg" width="200" height="200" viewBox="0 0 200 200">
+      <defs>
+        <radialGradient id="planetGrad" cx="40%" cy="35%">
+          <stop offset="0%" stop-color="#4a6fa5"/>
+          <stop offset="60%" stop-color="#1a2a5e"/>
+          <stop offset="100%" stop-color="#0a1230"/>
+        </radialGradient>
+        <radialGradient id="glowGrad" cx="50%" cy="50%">
+          <stop offset="0%" stop-color="rgba(245,200,66,0.3)"/>
+          <stop offset="100%" stop-color="transparent"/>
+        </radialGradient>
+      </defs>
+      <!-- Glow -->
+      <circle cx="100" cy="100" r="90" fill="url(#glowGrad)"/>
+      <!-- Planet -->
+      <circle cx="100" cy="110" r="65" fill="url(#planetGrad)"/>
+      <!-- Surface texture -->
+      <ellipse cx="90" cy="108" rx="40" ry="8" fill="rgba(255,255,255,0.04)"/>
+      <ellipse cx="115" cy="125" rx="25" ry="5" fill="rgba(255,255,255,0.03)"/>
+      <!-- Rose stem -->
+      <line x1="100" y1="45" x2="100" y2="78" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round"/>
+      <!-- Leaf -->
+      <ellipse cx="92" cy="65" rx="10" ry="5" fill="#4ade80" transform="rotate(-30 92 65)"/>
+      <!-- Rose bloom -->
+      <circle cx="100" cy="40" r="14" fill="#e8526a" opacity="0.9"/>
+      <ellipse cx="94" cy="36" rx="8" ry="5" fill="#f08090" transform="rotate(-20 94 36)"/>
+      <ellipse cx="106" cy="35" rx="7" ry="5" fill="#d04060" transform="rotate(15 106 35)"/>
+      <circle cx="100" cy="38" r="5" fill="#f5c842"/>
+      <!-- Stars around -->
+      <circle cx="40" cy="30"  r="1.5" fill="white" opacity="0.9"/>
+      <circle cx="160" cy="20" r="1"   fill="white" opacity="0.7"/>
+      <circle cx="170" cy="70" r="1.5" fill="white" opacity="0.8"/>
+      <circle cx="30"  cy="80" r="1"   fill="white" opacity="0.6"/>
+      <circle cx="155" cy="150" r="1.5" fill="white" opacity="0.7"/>
+      <!-- Question mark -->
+      <text x="130" y="55" font-family="Georgia,serif" font-size="28" fill="rgba(245,200,66,0.8)" font-style="italic">?</text>
+    </svg>
+
+    <h1 class="title-main">The Stolen Rose</h1>
+    <p class="title-sub">✦ A Little Prince Mystery ✦</p>
+    <p class="title-intro">
+      You are a <em>Cosmic Inspector</em> — sent across the galaxy when something precious goes missing.<br>
+      Today, Asteroid B-612 has sent an urgent distress signal.<br><br>
+      <em>"My Rose… she is gone."</em>
+    </p>
+  </div>
+
+  <!-- PROGRESS -->
+  <div id="progress-stars">
+    <span class="p-star" data-s="0">★</span>
+    <span class="p-star" data-s="1">★</span>
+    <span class="p-star" data-s="2">★</span>
+    <span class="p-star" data-s="3">★</span>
+    <span class="p-star" data-s="4">★</span>
+    <span class="p-star" data-s="5">★</span>
+  </div>
+
+  <!-- SCENE CARD -->
+  <div id="scene-card">
+    <div id="scene-illustration">
+      <div id="scene-bg-art"></div>
+      <div id="scene-svg-art"></div>
+      <div id="planet-label">Loading…</div>
+    </div>
+
+    <div id="clue-panel"></div>
+
+    <div id="scene-body">
+      <div id="scene-narrative"></div>
+    </div>
+
+    <div id="choices-wrap" id="choices"></div>
+  </div>
+
+</div>
+
+<script>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <title>Oh no... 💔</title>
+   <style>
+       body {
+           background: linear-gradient(45deg, #2c3e50, #34495e, #2c3e50);
+           font-family: 'Comic Sans MS', cursive;
+           text-align: center;
+           padding: 50px;
+           min-height: 100vh;
+           margin: 0;
+       }
+      
+       .container {
+           background: rgba(255, 255, 255, 0.9);
+           border-radius: 20px;
+           padding: 40px;
+           box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+           max-width: 600px;
+           margin: 0 auto;
+       }
+      
+       h1 {
+           color: #2c3e50;
+           font-size: 3em;
+           margin-bottom: 20px;
+           animation: sadShake 2s ease-in-out infinite;
+       }
+      
+       @keyframes sadShake {
+           0%, 100% { transform: translateX(0); }
+           25% { transform: translateX(-5px); }
+           75% { transform: translateX(5px); }
+       }
+      
+       .broken-heart {
+           font-size: 4em;
+           color: #e74c3c;
+           margin: 20px 0;
+           animation: heartbreak 3s ease-in-out infinite;
+       }
+      
+       @keyframes heartbreak {
+           0%, 100% { transform: scale(1); }
+           50% { transform: scale(0.8); opacity: 0.5; }
+       }
+      
+       .rain {
+           position: absolute;
+           width: 100%;
+           height: 100%;
+           top: 0;
+           left: 0;
+           pointer-events: none;
+           overflow: hidden;
+       }
+      
+       .drop {
+           position: absolute;
+           color: #3498db;
+           font-size: 1.5em;
+           animation: fall 2s linear infinite;
+       }
+      
+       @keyframes fall {
+           0% { transform: translateY(-100vh); opacity: 1; }
+           100% { transform: translateY(100vh); opacity: 0; }
+       }
+      
+       .sad-message {
+           font-size: 1.2em;
+           color: #555;
+           margin: 30px 0;
+           line-height: 1.6;
+       }
+
+
+            .music-section {
+           margin: 30px 0;
+           padding: 20px;
+           background: rgba(23, 73, 111, 0.3);
+           border-radius: 15px;
+       }
+      
+       audio {
+           width: 100%;
+           max-width: 400px;
+       }
+
+
+      
+       .maybe-btn {
+           margin-top: 30px;
+           font-size: 1.1em;
+           padding: 12px 25px;
+           background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+           color: white;
+           border: none;
+           border-radius: 25px;
+           text-decoration: none;
+           display: inline-block;
+           transition: all 0.3s ease;
+           font-family: 'Comic Sans MS', cursive;
+           margin-right: 15px;
+       }
+      
+       .back-btn {
+           margin-top: 30px;
+           font-size: 1.1em;
+           padding: 12px 25px;
+           background: linear-gradient(45deg, #3498db, #2980b9);
+           color: white;
+           border: none;
+           border-radius: 25px;
+           text-decoration: none;
+           display: inline-block;
+           transition: all 0.3s ease;
+           font-family: 'Comic Sans MS', cursive;
+       }
+      
+       .maybe-btn:hover, .back-btn:hover {
+           transform: scale(1.05);
+       }
+   </style>
+</head>
+<body>
+   <div class="rain">
+       <div class="drop" style="left: 10%; animation-delay: 0s;">💧</div>
+       <div class="drop" style="left: 20%; animation-delay: 0.5s;">💧</div>
+       <div class="drop" style="left: 30%; animation-delay: 1s;">💧</div>
+       <div class="drop" style="left: 40%; animation-delay: 1.5s;">💧</div>
+       <div class="drop" style="left: 50%; animation-delay: 2s;">💧</div>
+       <div class="drop" style="left: 60%; animation-delay: 0.3s;">💧</div>
+       <div class="drop" style="left: 70%; animation-delay: 0.8s;">💧</div>
+       <div class="drop" style="left: 80%; animation-delay: 1.3s;">💧</div>
+       <div class="drop" style="left: 90%; animation-delay: 1.8s;">💧</div>
+   </div>
+  
+   <div class="container">
+  
+       <h1>Oh no... </h1>
+      
+       <img src="I Love You Cats GIF by Chippy the Dog.gif" width="400" alt="Valentine's Day">
+  
+
+
+        <p style="font-size: 1.5em; color: #2c3e50; margin: 30px 0;">
+           My heart is broken... 💔
+       </p>
+      
+      <div class="music-section">
+           <p style="color: #666; margin-bottom: 15px;">I'll always be here waiting...</p>
+           <audio controls autoplay loop>
+
+
+               <source src="Stromae feat. Pomme & Coldplay & Elyanna & Arcane & League Of Legends - Ma Meilleure Ennemie.mp3" type="audio/mpeg">
+           </audio>
+           <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+          
+           </p>
+       </div>
+
+
+       <div style="margin-top: 30px;">
+           <a href="new.html" class="maybe-btn">Maybe Reconsider? </a>
+           <a href="new.html".html" class="back-btn">← Back to Main</a>
+       </div>
+   </div>
+</body>
+</html>
+

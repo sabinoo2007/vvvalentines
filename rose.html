@@ -1,0 +1,1979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Stolen Rose — A Little Prince Mystery</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Lato:ital,wght@0,300;0,400;1,300&family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sky-deep: #0a0e2a;
+  --sky-mid: #1a1f4e;
+  --sky-dawn: #2d1b5e;
+  --gold: #f5c842;
+  --gold-pale: #fde68a;
+  --rose: #e8526a;
+  --rose-pale: #fca5a5;
+  --green-planet: #4ade80;
+  --sand: #f5e6c8;
+  --ink: #1a1035;
+  --silver: #c8d8f0;
+  --asteroid: #b8a898;
+  --white: #fefefe;
+  --violet: #7c3aed;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--sky-deep);
+  color: var(--sand);
+  font-family: 'Lato', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* ══════════════════════════════
+   CANVAS / STARFIELD
+══════════════════════════════ */
+#starfield {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ══════════════════════════════
+   SHOOTING STARS
+══════════════════════════════ */
+.shooting-star {
+  position: fixed;
+  width: 2px;
+  height: 2px;
+  background: white;
+  border-radius: 50%;
+  z-index: 1;
+  pointer-events: none;
+  animation: shoot var(--dur,1.8s) linear var(--delay,0s) infinite;
+  opacity: 0;
+}
+.shooting-star::after {
+  content:'';
+  position: absolute;
+  top: 50%; left: 0;
+  transform: translateY(-50%);
+  width: 80px; height: 1px;
+  background: linear-gradient(to left, rgba(255,255,255,0.8), transparent);
+}
+@keyframes shoot {
+  0%   { opacity: 0; transform: translate(0,0); }
+  5%   { opacity: 1; }
+  100% { opacity: 0; transform: translate(300px, 150px); }
+}
+
+/* ══════════════════════════════
+   MAIN WRAPPER
+══════════════════════════════ */
+#game-wrap {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 16px 80px;
+}
+
+/* ══════════════════════════════
+   TITLE SCREEN
+══════════════════════════════ */
+#title-screen {
+  width: 100%;
+  max-width: 900px;
+  text-align: center;
+  padding-top: 40px;
+  animation: fadeSlideUp 1.2s ease both;
+}
+
+@keyframes fadeSlideUp {
+  from { opacity:0; transform: translateY(40px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+.title-planet-svg {
+  display: block;
+  margin: 0 auto 20px;
+  animation: floatOrbit 7s ease-in-out infinite;
+  filter: drop-shadow(0 0 30px rgba(245,200,66,0.5));
+}
+
+@keyframes floatOrbit {
+  0%,100% { transform: translateY(0) rotate(-1deg); }
+  50%      { transform: translateY(-18px) rotate(1deg); }
+}
+
+.title-main {
+  font-family: 'Great Vibes', cursive;
+  font-size: clamp(2.8rem, 8vw, 5.5rem);
+  color: var(--gold);
+  text-shadow: 0 0 40px rgba(245,200,66,0.6), 0 2px 6px rgba(0,0,0,0.8);
+  line-height: 1.1;
+  animation: titleGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes titleGlow {
+  from { text-shadow: 0 0 30px rgba(245,200,66,0.5), 0 2px 6px rgba(0,0,0,0.8); }
+  to   { text-shadow: 0 0 60px rgba(245,200,66,0.9), 0 0 100px rgba(245,200,66,0.3), 0 2px 6px rgba(0,0,0,0.8); }
+}
+
+.title-sub {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: clamp(0.9rem, 2.5vw, 1.3rem);
+  color: var(--silver);
+  letter-spacing: 3px;
+  margin-top: 8px;
+  opacity: 0.8;
+}
+
+.title-intro {
+  max-width: 600px;
+  margin: 32px auto 0;
+  font-size: 1.05rem;
+  line-height: 1.9;
+  color: rgba(248,235,200,0.85);
+  font-style: italic;
+}
+
+/* ══════════════════════════════
+   SCENE CARD
+══════════════════════════════ */
+#scene-card {
+  width: 100%;
+  max-width: 860px;
+  margin-top: 32px;
+  background: linear-gradient(160deg, rgba(20,14,50,0.97) 0%, rgba(8,6,24,0.99) 100%);
+  border: 1px solid rgba(245,200,66,0.2);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 0 80px rgba(80,40,160,0.25), 0 20px 60px rgba(0,0,0,0.6);
+  animation: cardIn 0.5s cubic-bezier(0.34,1.2,0.64,1) both;
+}
+
+@keyframes cardIn {
+  from { opacity:0; transform: scale(0.94) translateY(20px); }
+  to   { opacity:1; transform: scale(1) translateY(0); }
+}
+
+/* ── Planet illustration header ── */
+#scene-illustration {
+  width: 100%;
+  height: 220px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+#scene-illustration svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#scene-illustration .scene-svg-art {
+  position: relative;
+  z-index: 2;
+  animation: sceneArtFloat 5s ease-in-out infinite;
+}
+
+@keyframes sceneArtFloat {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+
+/* ── Planet label ── */
+#planet-label {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.72rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--gold);
+  border: 1px solid rgba(245,200,66,0.3);
+  padding: 5px 18px;
+  background: rgba(10,5,30,0.7);
+  backdrop-filter: blur(4px);
+  white-space: nowrap;
+}
+
+/* ── Clue tracker ── */
+#clue-panel {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 12px 28px;
+  min-height: 50px;
+  border-bottom: 1px solid rgba(245,200,66,0.1);
+  background: rgba(0,0,0,0.2);
+}
+
+.clue-tag {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.72rem;
+  font-style: italic;
+  color: var(--ink);
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-pale) 100%);
+  padding: 4px 12px;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  animation: clueAppear 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+  white-space: nowrap;
+}
+
+@keyframes clueAppear {
+  from { transform: scale(0) rotate(-8deg); opacity:0; }
+  to   { transform: scale(1) rotate(0);     opacity:1; }
+}
+
+/* ── Body ── */
+#scene-body {
+  padding: 36px 44px 12px;
+}
+
+#scene-narrative {
+  font-size: 1.05rem;
+  line-height: 1.95;
+  color: rgba(248,235,200,0.9);
+}
+
+#scene-narrative em {
+  color: var(--gold-pale);
+  font-style: italic;
+}
+
+#scene-narrative strong {
+  color: var(--rose-pale);
+  font-weight: 400;
+  font-family: 'Playfair Display', serif;
+}
+
+#scene-narrative .quote {
+  display: block;
+  margin: 20px 0;
+  padding: 16px 24px;
+  border-left: 3px solid var(--gold);
+  background: rgba(245,200,66,0.06);
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--gold-pale);
+  border-radius: 0 4px 4px 0;
+}
+
+.insight-box {
+  margin: 22px 0 8px;
+  padding: 14px 20px;
+  border-left: 3px solid var(--rose);
+  background: rgba(232,82,106,0.08);
+  font-size: 0.9rem;
+  font-style: italic;
+  color: rgba(252,165,165,0.85);
+  border-radius: 0 4px 4px 0;
+}
+
+.insight-box::before {
+  content: '✦ ';
+  color: var(--rose);
+}
+
+/* ── Choices ── */
+#choices-wrap {
+  padding: 24px 44px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.choice-btn {
+  background: transparent;
+  border: 1px solid rgba(245,200,66,0.25);
+  color: var(--sand);
+  font-family: 'Lato', sans-serif;
+  font-weight: 300;
+  font-size: 1rem;
+  line-height: 1.55;
+  padding: 16px 24px 16px 56px;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.28s ease;
+  border-radius: 4px;
+}
+
+.choice-btn::before {
+  content: attr(data-idx);
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'Great Vibes', cursive;
+  font-size: 1.3rem;
+  color: var(--gold);
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.choice-btn:hover {
+  background: rgba(245,200,66,0.08);
+  border-color: rgba(245,200,66,0.55);
+  color: #fff;
+  transform: translateX(5px);
+  box-shadow: 0 0 20px rgba(245,200,66,0.15), inset 0 0 20px rgba(245,200,66,0.04);
+}
+
+.choice-btn:hover::before { opacity: 1; }
+
+.choice-btn.danger {
+  border-color: rgba(232,82,106,0.3);
+}
+.choice-btn.danger:hover {
+  background: rgba(232,82,106,0.1);
+  border-color: rgba(232,82,106,0.6);
+  box-shadow: 0 0 20px rgba(232,82,106,0.2);
+}
+
+.choice-btn:active { transform: translateX(3px) scale(0.99); }
+
+/* ── Progress stars ── */
+#progress-stars {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  padding: 20px 0 0;
+}
+
+.p-star {
+  font-size: 1rem;
+  opacity: 0.2;
+  transition: all 0.4s;
+  filter: grayscale(1);
+}
+.p-star.lit {
+  opacity: 1;
+  filter: none;
+  animation: starPop 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+  text-shadow: 0 0 12px var(--gold);
+}
+@keyframes starPop {
+  from { transform: scale(0); }
+  to   { transform: scale(1); }
+}
+
+/* ══════════════════════════════
+   WIN / LOSS SCREENS
+══════════════════════════════ */
+.outcome-wrap {
+  text-align: center;
+  padding: 20px 0 30px;
+}
+
+.outcome-icon {
+  font-size: 4.5rem;
+  display: block;
+  margin-bottom: 24px;
+  animation: outcomeBounce 2.5s ease-in-out infinite;
+}
+
+@keyframes outcomeBounce {
+  0%,100% { transform: scale(1) rotate(0deg); }
+  40%      { transform: scale(1.12) rotate(3deg); }
+  60%      { transform: scale(1.08) rotate(-2deg); }
+}
+
+.outcome-title {
+  font-family: 'Great Vibes', cursive;
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+
+.win-screen .outcome-title  { color: var(--gold); text-shadow: 0 0 40px rgba(245,200,66,0.7); }
+.loss-screen .outcome-title { color: var(--rose);  text-shadow: 0 0 40px rgba(232,82,106,0.7); }
+
+.outcome-text {
+  font-size: 1rem;
+  line-height: 1.9;
+  max-width: 580px;
+  margin: 0 auto 30px;
+  color: rgba(248,235,200,0.85);
+  font-style: italic;
+}
+
+.outcome-quote {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--gold-pale);
+  border-top: 1px solid rgba(245,200,66,0.2);
+  padding-top: 20px;
+  margin-top: 10px;
+}
+
+.btn-restart {
+  display: inline-block;
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 1rem;
+  padding: 12px 36px;
+  cursor: pointer;
+  border-radius: 3px;
+  letter-spacing: 1px;
+  transition: all 0.25s;
+}
+
+.btn-restart:hover {
+  background: rgba(245,200,66,0.1);
+  box-shadow: 0 0 25px rgba(245,200,66,0.35);
+}
+
+/* ══════════════════════════════
+   TRANSITION VEIL
+══════════════════════════════ */
+#veil {
+  position: fixed;
+  inset: 0;
+  background: var(--sky-deep);
+  z-index: 999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+#veil.active { opacity: 1; pointer-events: all; }
+
+/* ══════════════════════════════
+   RESPONSIVE
+══════════════════════════════ */
+@media (max-width: 600px) {
+  #scene-body   { padding: 24px 20px 12px; }
+  #choices-wrap { padding: 16px 20px 30px; }
+  #scene-illustration { height: 170px; }
+  .choice-btn { padding: 14px 16px 14px 46px; font-size: 0.93rem; }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--sky-deep); }
+::-webkit-scrollbar-thumb { background: var(--violet); border-radius: 3px; }
+
+/* Rose petal float */
+.petal {
+  position: fixed;
+  width: 8px; height: 12px;
+  background: radial-gradient(ellipse, var(--rose) 0%, #c0392b 100%);
+  border-radius: 80% 20% 80% 20%;
+  pointer-events: none;
+  z-index: 3;
+  animation: petalFall var(--pd, 6s) linear var(--pdel, 0s) infinite;
+  opacity: 0;
+}
+@keyframes petalFall {
+  0%   { opacity:0; transform: translate(0,0) rotate(0deg); }
+  10%  { opacity: 0.7; }
+  100% { opacity:0; transform: translate(var(--px,30px), 100vh) rotate(360deg); }
+}
+</style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+<div id="veil"></div>
+
+<!-- Shooting stars -->
+<div class="shooting-star" style="--delay:0s;   --dur:2.2s; top:12%; left:5%;  --px:250px;"></div>
+<div class="shooting-star" style="--delay:3.1s; --dur:1.8s; top:6%;  left:30%; --px:300px;"></div>
+<div class="shooting-star" style="--delay:6.5s; --dur:2.5s; top:20%; left:60%; --px:200px;"></div>
+<div class="shooting-star" style="--delay:9s;   --dur:1.6s; top:3%;  left:80%; --px:180px;"></div>
+
+<!-- Rose petals -->
+<div class="petal" style="left:15%; --pd:7s;  --pdel:0s;   --px:40px;"></div>
+<div class="petal" style="left:35%; --pd:9s;  --pdel:2s;   --px:-30px;"></div>
+<div class="petal" style="left:60%; --pd:8s;  --pdel:4s;   --px:50px;"></div>
+<div class="petal" style="left:80%; --pd:6s;  --pdel:1s;   --px:-20px;"></div>
+<div class="petal" style="left:50%; --pd:11s; --pdel:6s;   --px:60px;"></div>
+
+<div id="game-wrap">
+
+  <!-- TITLE -->
+  <div id="title-screen">
+    <svg class="title-planet-svg" width="200" height="200" viewBox="0 0 200 200">
+      <defs>
+        <radialGradient id="planetGrad" cx="40%" cy="35%">
+          <stop offset="0%" stop-color="#4a6fa5"/>
+          <stop offset="60%" stop-color="#1a2a5e"/>
+          <stop offset="100%" stop-color="#0a1230"/>
+        </radialGradient>
+        <radialGradient id="glowGrad" cx="50%" cy="50%">
+          <stop offset="0%" stop-color="rgba(245,200,66,0.3)"/>
+          <stop offset="100%" stop-color="transparent"/>
+        </radialGradient>
+      </defs>
+      <!-- Glow -->
+      <circle cx="100" cy="100" r="90" fill="url(#glowGrad)"/>
+      <!-- Planet -->
+      <circle cx="100" cy="110" r="65" fill="url(#planetGrad)"/>
+      <!-- Surface texture -->
+      <ellipse cx="90" cy="108" rx="40" ry="8" fill="rgba(255,255,255,0.04)"/>
+      <ellipse cx="115" cy="125" rx="25" ry="5" fill="rgba(255,255,255,0.03)"/>
+      <!-- Rose stem -->
+      <line x1="100" y1="45" x2="100" y2="78" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round"/>
+      <!-- Leaf -->
+      <ellipse cx="92" cy="65" rx="10" ry="5" fill="#4ade80" transform="rotate(-30 92 65)"/>
+      <!-- Rose bloom -->
+      <circle cx="100" cy="40" r="14" fill="#e8526a" opacity="0.9"/>
+      <ellipse cx="94" cy="36" rx="8" ry="5" fill="#f08090" transform="rotate(-20 94 36)"/>
+      <ellipse cx="106" cy="35" rx="7" ry="5" fill="#d04060" transform="rotate(15 106 35)"/>
+      <circle cx="100" cy="38" r="5" fill="#f5c842"/>
+      <!-- Stars around -->
+      <circle cx="40" cy="30"  r="1.5" fill="white" opacity="0.9"/>
+      <circle cx="160" cy="20" r="1"   fill="white" opacity="0.7"/>
+      <circle cx="170" cy="70" r="1.5" fill="white" opacity="0.8"/>
+      <circle cx="30"  cy="80" r="1"   fill="white" opacity="0.6"/>
+      <circle cx="155" cy="150" r="1.5" fill="white" opacity="0.7"/>
+      <!-- Question mark -->
+      <text x="130" y="55" font-family="Georgia,serif" font-size="28" fill="rgba(245,200,66,0.8)" font-style="italic">?</text>
+    </svg>
+
+    <h1 class="title-main">The Stolen Rose</h1>
+    <p class="title-sub">✦ A Little Prince Mystery ✦</p>
+    <p class="title-intro">
+      You are a <em>Cosmic Inspector</em> — sent across the galaxy when something precious goes missing.<br>
+      Today, Asteroid B-612 has sent an urgent distress signal.<br><br>
+      <em>"My Rose… she is gone."</em>
+    </p>
+  </div>
+
+  <!-- PROGRESS -->
+  <div id="progress-stars">
+    <span class="p-star" data-s="0">★</span>
+    <span class="p-star" data-s="1">★</span>
+    <span class="p-star" data-s="2">★</span>
+    <span class="p-star" data-s="3">★</span>
+    <span class="p-star" data-s="4">★</span>
+    <span class="p-star" data-s="5">★</span>
+  </div>
+
+  <!-- SCENE CARD -->
+  <div id="scene-card">
+    <div id="scene-illustration">
+      <div id="scene-bg-art"></div>
+      <div id="scene-svg-art"></div>
+      <div id="planet-label">Loading…</div>
+    </div>
+
+    <div id="clue-panel"></div>
+
+    <div id="scene-body">
+      <div id="scene-narrative"></div>
+    </div>
+
+    <div id="choices-wrap" id="choices"></div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  STARFIELD CANVAS
+// ═══════════════════════════════════════════════════════════
+(function() {
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  function initStars() {
+    stars = [];
+    for (let i = 0; i < 280; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.6 + 0.2,
+        a: Math.random(),
+        da: (Math.random() - 0.5) * 0.008,
+        speed: Math.random() * 0.04
+      });
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // gradient bg
+    const grad = ctx.createRadialGradient(
+      canvas.width*0.5, canvas.height*0.1, 0,
+      canvas.width*0.5, canvas.height*0.5, canvas.height
+    );
+    grad.addColorStop(0,   '#1a1050');
+    grad.addColorStop(0.4, '#0d0830');
+    grad.addColorStop(1,   '#050318');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    stars.forEach(s => {
+      s.a += s.da;
+      if (s.a <= 0 || s.a >= 1) s.da *= -1;
+      s.y += s.speed;
+      if (s.y > canvas.height) s.y = 0;
+
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${s.a.toFixed(2)})`;
+      ctx.fill();
+    });
+
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', () => { resize(); initStars(); });
+  resize(); initStars(); draw();
+})();
+
+// ═══════════════════════════════════════════════════════════
+//  GAME STATE
+// ═══════════════════════════════════════════════════════════
+const state = {
+  clues: new Set(),
+  depth: 0,
+  visited: new Set()
+};
+
+const CLUES = {
+  broken_fence:     '🌿 Broken Fence Post',
+  kings_order:      '👑 The King\'s Decree',
+  fox_secret:       '🦊 Fox\'s Whisper',
+  vain_mirror:      '🪞 Vanity\'s Mirror',
+  drunk_map:        '🍷 Drunkard\'s Map',
+  lamplighter_note: '🕯️ Lamplighter\'s Note',
+  true_reason:      '💌 Letter to the Rose',
+  geographer_map:   '🗺️ Ancient Star Map',
+  snake_riddle:     '🐍 Snake\'s Riddle',
+  rose_petal:       '🌹 A Single Petal',
+};
+
+// ═══════════════════════════════════════════════════════════
+//  SVG ILLUSTRATIONS per planet
+// ═══════════════════════════════════════════════════════════
+const ILLUSTRATIONS = {
+
+  b612: `<svg viewBox="0 0 860 220" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+    <defs>
+      <radialGradient id="sky612" cx="50%" cy="0%"><stop offset="0%" stop-color="#1a2560"/><stop offset="100%" stop-color="#0a0e2a"/></radialGradient>
+      <radialGradient id="pl612" cx="40%" cy="35%"><stop offset="0%" stop-color="#5a7fbe"/><stop offset="100%" stop-color="#1a2a5e"/></radialGradient>
+    </defs>
+    <rect width="860" height="220" fill="url(#sky612)"/>
+    <!-- Stars -->
+    <circle cx="50" cy="20" r="1.5" fill="white" opacity="0.8"/>
+    <circle cx="200" cy="40" r="1" fill="white" opacity="0.6"/>
+    <circle cx="700" cy="25" r="2" fill="white" opacity="0.9"/>
+    <circle cx="800" cy="50" r="1" fill="white" opacity="0.7"/>
+    <circle cx="100" cy="60" r="1.5" fill="white" opacity="0.5"/>
+    <circle cx="600" cy="15" r="1" fill="white" opacity="0.8"/>
+    <circle cx="750" cy="80" r="1.5" fill="white" opacity="0.6"/>
+    <!-- Planet B-612 -->
+    <ellipse cx="430" cy="170" rx="200" ry="60" fill="url(#pl612)" opacity="0.9"/>
+    <ellipse cx="430" cy="165" rx="200" ry="55" fill="#2a3a7e"/>
+    <ellipse cx="380" cy="155" rx="100" ry="15" fill="rgba(255,255,255,0.05)"/>
+    <!-- Baobab roots (dangerous) -->
+    <path d="M 260,155 Q 240,140 250,120 Q 260,100 245,85" stroke="#4a3020" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M 240,145 Q 220,128 228,108" stroke="#4a3020" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- Rose's spot - EMPTY glass case -->
+    <rect x="390" y="115" width="30" height="40" rx="15" fill="none" stroke="rgba(245,200,66,0.5)" stroke-width="1.5" stroke-dasharray="4,3"/>
+    <text x="405" y="108" text-anchor="middle" font-size="20">❓</text>
+    <!-- Little Prince silhouette -->
+    <circle cx="480" cy="118" r="12" fill="#f5e6c8"/>
+    <rect x="474" y="130" width="12" height="20" fill="#2a6030" rx="2"/>
+    <path d="M 465,118 Q 458,110 462,105" stroke="#f5c842" stroke-width="6" stroke-linecap="round" fill="none"/>
+    <!-- Scarf -->
+    <path d="M 474,133 Q 466,128 460,135" stroke="#e8526a" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </svg>`,
+
+  king: `<svg viewBox="0 0 860 220" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+    <defs>
+      <radialGradient id="skyKing" cx="50%" cy="0%"><stop offset="0%" stop-color="#2a1a5e"/><stop offset="100%" stop-color="#0a0820"/></radialGradient>
+      <radialGradient id="plKing" cx="40%" cy="30%"><stop offset="0%" stop-color="#8b6a30"/><stop offset="100%" stop-color="#4a3010"/></radialGradient>
+    </defs>
+    <rect width="860" height="220" fill="url(#skyKing)"/>
+    <circle cx="120" cy="30" r="2" fill="white" opacity="0.8"/>
+    <circle cx="400" cy="15" r="1.5" fill="white" opacity="0.7"/>
+    <circle cx="750" cy="35" r="2" fill="white" opacity="0.9"/>
+    <circle cx="650" cy="10" r="1" fill="white" opacity="0.5"/>
+    <!-- Planet -->
+    <ellipse cx="430" cy="175" rx="220" ry="55" fill="url(#plKing)" opacity="0.9"/>
+    <!-- Throne -->
+    <rect x="385" y="90" width="90" height="80" rx="5" fill="#6a4a20" opacity="0.8"/>
+    <polygon points="385,90 430,60 475,90" fill="#8b6a30"/>
+    <!-- Crown on top of throne -->
+    <rect x="400" y="55" width="60" height="15" fill="#f5c842"/>
+    <polygon points="405,55 415,40 425,55" fill="#f5c842"/>
+    <polygon points="420,55 430,38 440,55" fill="#f5c842"/>
+    <polygon points="435,55 445,40 455,55" fill="#f5c842"/>
+    <!-- Ermine robe draped over throne -->
+    <path d="M 370,175 Q 380,120 385,100 Q 430,95 475,100 Q 480,120 490,175" fill="white" opacity="0.15"/>
+    <!-- King figure -->
+    <circle cx="430" cy="105" r="14" fill="#c8a860"/>
+    <rect x="420" y="119" width="20" height="28" fill="#8b1a1a" rx="2"/>
+    <!-- Scepter -->
+    <line x1="460" y1="90" x2="460" y2="145" stroke="#f5c842" stroke-width="3"/>
+    <circle cx="460" cy="88" r="6" fill="#f5c842"/>
+    <!-- Rose held by guards – empty hands -->
+    <text x="310" y="145" font-size="24">💐</text>
+    <text x="530" y="145" font-size="16">❓</text>
+  </svg>`,
+
+  vain: `<svg viewBox="0 0 860 220" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+    <defs>
+      <radialGradient id="skyVain" cx="50%" cy="0%"><stop offset="0%" stop-color="#3a1a3a"/><stop offset="100%" stop-color="#0a0818"/></radialGradient>
+      <radialGradient id="plVain" cx="40%" cy="30%"><stop offset="0%" stop-color="#a06090"/><stop offset="100%" stop-color="#501040"/></radialGradient>
+    </defs>
+    <rect width="860" height="220" fill="url(#skyVain)"/>
+    <circle cx="80" cy="25" r="1.5" fill="white" opacity="0.7"/>
+    <circle cx="500" cy="18" r="2" fill="white" opacity="0.9"/>
+    <circle cx="780" cy="40" r="1.5" fill="white" opacity="0.6"/>
+    <!-- Planet -->
+    <ellipse cx="430" cy="178" rx="210" ry="52" fill="url(#plVain)" opacity="0.9"/>
+    <!-- Giant mirror -->
+    <rect x="370" y="70" width="120" height="95" rx="60" fill="none" stroke="#e8c0d0" stroke-width="3"/>
+    <rect x="375" y="75" width="110" height="85" rx="55" fill="rgba(255,220,240,0.1)"/>
+    <!-- Mirror reflection glow -->
+    <ellipse cx="420" cy="100" rx="30" ry="20" fill="rgba(255,200,220,0.15)"/>
+    <!-- Vain man figure -->
+    <circle cx="430" cy="105" r="13" fill="#f0d0b0"/>
+    <rect x="420" y="118" width="20" height="30" fill="#d0a0c0" rx="2"/>
+    <!-- Hat with feather -->
+    <ellipse cx="430" cy="91" rx="18" ry="7" fill="#c060a0"/>
+    <path d="M 445,88 Q 460,75 468,68" stroke="#f5c842" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <!-- Rose in hand (admiring) -->
+    <line x1="450" y1="125" x2="468" y2="108" stroke="#4ade80" stroke-width="2"/>
+    <circle cx="470" cy="105" r="8" fill="#e8526a" opacity="0.9"/>
+    <circle cx="474" cy="101" r="5" fill="#f08090"/>
+    <!-- Applause symbols -->
+    <text x="290" y="130" font-size="22" opacity="0.6">👏</text>
+    <text x="550" y="125" font-size="22" opacity="0.6">👏</text>
+    <text x="300" y="165" font-size="16" opacity="0.4">Bravo!</text>
+  </svg>`,
+
+  drunkard: `<svg viewBox="0 0 860 220" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+    <defs>
+      <radialGradient id="skyDrunk" cx="50%" cy="0%"><stop offset="0%" stop-color="#1a2030"/><stop offset="100%" stop-color="#080e18"/></radialGradient>
+      <radialGradient id="plDrunk" cx="40%" cy="35%"><stop offset="0%" stop-color="#507060"/><stop offset="100%" stop-color="#203040"/></radialGradient>
+    </defs>
+    <rect width="860" height="220" fill="url(#skyDrunk)"/>
+    <circle cx="150" cy="20" r="2" fill="white" opacity="0.6"/>
+    <circle cx="450" cy="12" r="1.5" fill="white" opacity="0.8"/>
+    <circle cx="720" cy="30" r="1" fill="white" opacity="0.5"/>
+    <!-- Planet -->
+    <ellipse cx="430" cy="175" rx="215" ry="55" fill="url(#plDrunk)" opacity="0.9"/>
+    <!-- Bottles everywhere -->
+    <rect x="280" y="140" width="18" height="35" rx="5" fill="#407060" opacity="0.8"/>
+    <rect x="285" y="132" width="8" height="10" rx="3" fill="#407060" opacity="0.8"/>
+    <rect x="320" y="145" width="16" height="30" rx="4" fill="#306050" opacity="0.7"/>
+    <rect x="560" y="138" width="18" height="35" rx="5" fill="#407060" opacity="0.8"/>
+    <rect x="565" y="130" width="8" height="10" rx="3" fill="#407060" opacity="0.8"/>
+    <!-- Drunkard figure, slumped -->
+    <circle cx="430" cy="118" r="14" fill="#d0b080"/>
+    <path d="M 416,132 Q 410,160 400,175" stroke="#806040" stroke-width="12" stroke-linecap="round" fill="none"/>
+    <path d="M 444,132 Q 450,160 460,178" stroke="#806040" stroke-width="12" stroke-linecap="round" fill="none"/>
+    <!-- Slumped body -->
+    <ellipse cx="430" cy="150" rx="22" ry="28" fill="#907050"/>
+    <!-- Wine glass in hand -->
+    <path d="M 460,130 Q 470,120 475,128" stroke="#c8a060" stroke-width="2" fill="none"/>
+    <circle cx="477" cy="131" r="6" fill="rgba(180,80,80,0.7)"/>
+    <!-- Shame marks -->
+    <path d="M 445,115 Q 455,108 450,118" stroke="#e8526a" stroke-width="1.5" fill="none"/>
+    <!-- Rose on ground, forgotten -->
+    <line x1="350" y1="172" x2="365" y2="158" stroke="#4ade80" stroke-width="2" transform="rotate(30 350 172)"/>
+    <circle cx="362" cy="155" r="7" fill="#e8526a" opacity="0.6"/>
+    <text x="330" y="150" font-size="13" fill="rgba(245,200,66,0.6)">forgotten…</text>
+  </svg>`,
+
+  lamplighter: `<svg viewBox="0 0 860 220" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+    <defs>
+      <radialGradient id="skyLamp" cx="50%" cy="50%"><stop offset="0%" stop-color="#2a1a08"/><stop offset="100%" stop-color="#0a0510"/></radialGradient>
+      <radialGradient id="plLamp" cx="40%" cy="35%"><stop offset="0%" stop-color="#5a4030"/><stop offset="100%" stop-color="#2a1810"/></radialGradient>
+      <radialGradient id="lampGlow" cx="50%" cy="50%"><stop offset="0%" stop-color="rgba(245,200,66,0.6)"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+    </defs>
+    <rect width="860" height="220" fill="url(#skyLamp)"/>
+    <!-- Night/day flicker -->
+    <circle cx="430" cy="60" r="80" fill="url(#lampGlow)" opacity="0.4"/>
+    <!-- Planet -->
+    <ellipse cx="430" cy="178" rx="205" ry="52" fill="url(#plLamp)" opacity="0.9"/>
+    <!-- Lamppost -->
+    <line x1="430" y1="60" x2="430" y2="160" stroke="#b08060" stroke-width="5"/>
+    <!-- Lamp head -->
+    <rect x="415" y="48" width="30" height="22" rx="4" fill="#c09060"/>
+    <rect x="418" y="51" width="24" height="16" rx="2" fill="rgba(255,220,100,0.85)"/>
+    <!-- Glow -->
+    <circle cx="430" cy="59" r="25" fill="rgba(255,200,50,0.15)"/>
+    <!-- Lamplighter figure - exhausted -->
+    <circle cx="370" cy="118" r="13" fill="#c8a060"/>
+    <rect x="360" y="131" width="20" height="30" fill="#503020" rx="2"/>
+    <!-- Arms raised lighting -->
+    <line x1="380" y1="138" x2="430" y2="115" stroke="#503020" stroke-width="6" stroke-linecap="round"/>
+    <!-- Sweat/exhaustion -->
+    <circle cx="355" cy="112" r="3" fill="rgba(150,200,255,0.7)"/>
+    <circle cx="358" cy="118" r="2" fill="rgba(150,200,255,0.6)"/>
+    <!-- Day/Night label -->
+    <text x="320" y="75" font-size="12" fill="rgba(245,200,66,0.5)">day…</text>
+    <text x="480" y="75" font-size="12" fill="rgba(150,180,255,0.5)">night…</text>
+    <!-- Rose near lamp for warmth -->
+    <line x1="490" y1="162" x2="500" y2="145" stroke="#4ade80" stroke-width="2.5"/>
+    <circle cx="502" cy="141" r="9" fill="#e8526a" opacity="0.85"/>
+  </svg>`,
+
+  fox: `<svg viewBox="0 0 860 220" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+    <defs>
+      <radialGradient id="skyFox" cx="30%" cy="20%"><stop offset="0%" stop-color="#1a3020"/><stop offset="100%" stop-color="#080e10"/></radialGradient>
+      <radialGradient id="plFox" cx="40%" cy="35%"><stop offset="0%" stop-color="#3a6030"/><stop offset="100%" stop-color="#182810"/></radialGradient>
+    </defs>
+    <rect width="860" height="220" fill="url(#skyFox)"/>
+    <circle cx="100" cy="20" r="1.5" fill="white" opacity="0.7"/>
+    <circle cx="760" cy="35" r="2" fill="white" opacity="0.8"/>
+    <!-- Wheat field suggestion -->
+    <g opacity="0.4">
+    <line x1="250" y1="180" x2="255" y2="150" stroke="#d4a040" stroke-width="2"/>
+    <line x1="265" y1="180" x2="270" y2="148" stroke="#d4a040" stroke-width="2"/>
+    <line x1="280" y1="182" x2="285" y2="155" stroke="#d4a040" stroke-width="2"/>
+    <line x1="560" y1="180" x2="565" y2="152" stroke="#d4a040" stroke-width="2"/>
+    <line x1="575" y1="180" x2="580" y2="150" stroke="#d4a040" stroke-width="2"/>
+    <line x1="590" y1="182" x2="595" y2="153" stroke="#d4a040" stroke-width="2"/>
+    </g>
+    <!-- Planet -->
+    <ellipse cx="430" cy="178" rx="215" ry="52" fill="url(#plFox)" opacity="0.9"/>
+    <!-- Fox -->
+    <ellipse cx="380" cy="145" rx="30" ry="18" fill="#e08040"/>
+    <circle cx="380" cy="132" r="14" fill="#e08040"/>
+    <!-- Fox ears -->
+    <polygon points="370,120 365,100 380,118" fill="#e08040"/>
+    <polygon points="390,120 395,100 380,118" fill="#e08040"/>
+    <polygon points="370,120 367,105 378,118" fill="#f0b080"/>
+    <polygon points="390,120 393,105 382,118" fill="#f0b080"/>
+    <!-- Fox eyes -->
+    <circle cx="374" cy="132" r="3" fill="#301800"/>
+    <circle cx="386" cy="132" r="3" fill="#301800"/>
+    <circle cx="375" cy="131" r="1" fill="white"/>
+    <circle cx="387" cy="131" r="1" fill="white"/>
+    <!-- Fox tail -->
+    <path d="M 350,158 Q 310,145 300,160 Q 290,175 310,172" stroke="#e08040" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <circle cx="298" cy="168" r="10" fill="white" opacity="0.8"/>
+    <!-- Little Prince approaching -->
+    <circle cx="500" cy="118" r="12" fill="#f5e6c8"/>
+    <rect x="494" y="130" width="12" height="22" fill="#2a6030" rx="2"/>
+    <path d="M 494,133 Q 487,128 482,135" stroke="#e8526a" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- Taming distance line (dotted) -->
+    <line x1="410" y1="140" x2="494" y2="135" stroke="rgba(245,200,66,0.4)" stroke-width="1.5" stroke-dasharray="6,4"/>
+    <!-- Rose behind fox, hidden -->
+    <circle cx="340" cy="148" r="0" fill="#e8526a"/>
+    <text x="310" y="105" font-size="15" fill="rgba(232,82,106,0.7)">🌹?</text>
+  </svg>`,
+
+  geographer: `<svg viewBox="0 0 860 220" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+    <defs>
+      <radialGradient id="skyGeo" cx="50%" cy="0%"><stop offset="0%" stop-color="#1a1a3a"/><stop offset="100%" stop-color="#060612"/></radialGradient>
+      <radialGradient id="plGeo" cx="40%" cy="35%"><stop offset="0%" stop-color="#608090"/><stop offset="100%" stop-color="#203040"/></radialGradient>
+    </defs>
+    <rect width="860" height="220" fill="url(#skyGeo)"/>
+    <circle cx="60" cy="18" r="1.5" fill="white" opacity="0.9"/>
+    <circle cx="420" cy="10" r="1" fill="white" opacity="0.7"/>
+    <circle cx="800" cy="22" r="2" fill="white" opacity="0.8"/>
+    <!-- Planet -->
+    <ellipse cx="430" cy="178" rx="210" ry="52" fill="url(#plGeo)" opacity="0.9"/>
+    <!-- Giant book / map table -->
+    <rect x="340" y="100" width="180" height="90" rx="4" fill="#3a5060" opacity="0.8"/>
+    <rect x="344" y="104" width="172" height="82" rx="2" fill="#c8d8b0" opacity="0.7"/>
+    <!-- Map lines on book -->
+    <path d="M 355,115 Q 380,110 410,125 Q 440,140 470,120 Q 490,108 505,115" stroke="#204060" stroke-width="1.5" fill="none" opacity="0.7"/>
+    <circle cx="390" cy="118" r="5" fill="#e8526a" opacity="0.6"/>
+    <circle cx="450" cy="130" r="4" fill="#4a90e0" opacity="0.6"/>
+    <circle cx="480" cy="115" r="3" fill="#f5c842" opacity="0.8"/>
+    <!-- Compass on table -->
+    <circle cx="500" cy="140" r="18" fill="none" stroke="#c8a060" stroke-width="2"/>
+    <line x1="500" y1="125" x2="500" y2="135" stroke="#e8526a" stroke-width="2"/>
+    <line x1="500" y1="145" x2="500" y2="155" stroke="#c0c0c0" stroke-width="2"/>
+    <!-- Geographer figure -->
+    <circle cx="380" cy="100" r="13" fill="#c8b090"/>
+    <rect x="370" y="113" width="20" height="28" fill="#405060" rx="2"/>
+    <!-- Big beard -->
+    <ellipse cx="380" cy="108" rx="12" ry="8" fill="#e0d0b0" opacity="0.8"/>
+    <!-- Quill in hand -->
+    <line x1="390" y1="118" x2="410" y2="108" stroke="#f0e0c0" stroke-width="2"/>
+    <path d="M 410,108 Q 418,100 415,96" stroke="#a0c060" stroke-width="1.5" fill="none"/>
+  </svg>`,
+
+  final: `<svg viewBox="0 0 860 220" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+    <defs>
+      <radialGradient id="skyFin" cx="50%" cy="30%"><stop offset="0%" stop-color="#2a1a40"/><stop offset="100%" stop-color="#080514"/></radialGradient>
+      <radialGradient id="plFin" cx="40%" cy="35%"><stop offset="0%" stop-color="#4a5a9e"/><stop offset="100%" stop-color="#1a2050"/></radialGradient>
+      <radialGradient id="roseGlow" cx="50%" cy="50%"><stop offset="0%" stop-color="rgba(232,82,106,0.5)"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+    </defs>
+    <rect width="860" height="220" fill="url(#skyFin)"/>
+    <circle cx="80" cy="15" r="2" fill="white" opacity="0.9"/>
+    <circle cx="250" cy="28" r="1.5" fill="white" opacity="0.8"/>
+    <circle cx="600" cy="12" r="2" fill="white" opacity="0.9"/>
+    <circle cx="780" cy="35" r="1.5" fill="white" opacity="0.7"/>
+    <!-- Planet B-612 final -->
+    <ellipse cx="430" cy="178" rx="220" ry="55" fill="url(#plFin)" opacity="0.95"/>
+    <!-- Rose glow -->
+    <circle cx="430" cy="100" r="60" fill="url(#roseGlow)"/>
+    <!-- Rose restored -->
+    <line x1="430" y1="60" x2="430" y2="105" stroke="#4ade80" stroke-width="3" stroke-linecap="round"/>
+    <ellipse cx="420" cy="82" rx="12" ry="6" fill="#4ade80" transform="rotate(-25 420 82)"/>
+    <ellipse cx="440" cy="78" rx="10" ry="5" fill="#4ade80" transform="rotate(20 440 78)"/>
+    <!-- Rose petals -->
+    <circle cx="430" cy="58" r="16" fill="#e8526a" opacity="0.95"/>
+    <ellipse cx="420" cy="52" rx="10" ry="7" fill="#f08090" transform="rotate(-20 420 52)"/>
+    <ellipse cx="441" cy="50" rx="9" ry="7" fill="#d04060" transform="rotate(25 441 50)"/>
+    <ellipse cx="430" cy="45" rx="7" ry="9" fill="#f08090"/>
+    <circle cx="430" cy="56" r="5" fill="#f5c842"/>
+    <!-- Sparkles around rose -->
+    <text x="395" y="45" font-size="14">✨</text>
+    <text x="448" y="42" font-size="12">✨</text>
+    <text x="408" y="75" font-size="10">✨</text>
+    <!-- Little Prince kneeling -->
+    <circle cx="480" cy="120" r="13" fill="#f5e6c8"/>
+    <path d="M 468,133 Q 465,155 470,168" stroke="#2a6030" stroke-width="9" stroke-linecap="round" fill="none"/>
+    <path d="M 480,133 Q 482,145 480,155" stroke="#2a6030" stroke-width="8" stroke-linecap="round" fill="none"/>
+    <path d="M 468,136 Q 460,130 455,138" stroke="#e8526a" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </svg>`
+};
+
+// ═══════════════════════════════════════════════════════════
+//  SCENES
+// ═══════════════════════════════════════════════════════════
+const SCENES = {
+
+  // ─────────────────────────────────────────────
+  intro: {
+    planet: 'Asteroid B-612 — The Beginning',
+    art: 'b612',
+    depth: 0,
+    text: `
+      <p>The emergency transmission reaches you at 3 a.m. <em>cosmic time</em>. It is a child's voice, but weighted with the silence of someone who has seen sunsets forty-four times in a single day.</p>
+
+      <span class="quote">"She is gone. My Rose… she was there this morning, under her glass bell. And now — nothing. Not even the glass. Inspector, you must help me find her."</span>
+
+      <p>You land on <strong>Asteroid B-612</strong>. The tiny planet is smaller than you imagined — a few volcanoes, some grass, one broken fence post near where the Rose stood.</p>
+
+      <p>The Little Prince looks at you with eyes that contain entire galaxies of worry. <em>"I have been to many planets. Each one has someone who might know something."</em></p>
+
+      <div class="insight-box">A single rose, unique in all the universe — what kind of person, or creature, would take it? And why?</div>
+    `,
+    choices: [
+      { text: 'Examine the broken fence post carefully — there may be physical clues here on B-612', next: 'b612_clue', clue: 'broken_fence' },
+      { text: 'Ask the Little Prince: "Has anyone visited recently? Any unusual visitors from other planets?"', next: 'prince_question' },
+      { text: 'Trust your instinct — head straight to the planet of the King. Power and possession go together.', next: 'king_planet', label: 'danger' },
+      { text: 'Say: "The Rose may have simply left on her own. Let us think about why she might want to leave."', next: 'rose_motivation' }
+    ]
+  },
+
+  // ─────────────────────────────────────────────
+  b612_clue: {
+    planet: 'B-612 — The Broken Fence',
+    art: 'b612',
+    depth: 1,
+    text: `
+      <p>You kneel beside the broken fence post. The wood is old — but the <em>break itself is fresh</em>. Not rotted. Snapped.</p>
+
+      <p>Beside it: a single <strong>orange fur</strong>, barely visible in the asteroid's pale soil. And something else — a tiny, folded piece of paper, wedged beneath the post.</p>
+
+      <p>You unfold it. Inside, in elegant, looping handwriting:</p>
+
+      <span class="quote">"She deserves to be seen by more than one pair of eyes. — A Well-Wisher"</span>
+
+      <p>The Little Prince reads over your shoulder and goes very still. <em>"That is… almost kind. But it is not their right."</em></p>
+
+      <div class="insight-box">The thief believes they were doing something good. This changes everything about the investigation.</div>
+    `,
+    choices: [
+      { text: 'The orange fur is a fox\'s fur. Go to the planet where the Fox lives.', next: 'fox_planet', clue: 'fox_secret' },
+      { text: 'The note says "more than one pair of eyes" — that sounds like the Vain Man, who craves an audience.', next: 'vain_planet' },
+      { text: 'Ask the Little Prince who he thinks wrote this note.', next: 'prince_note_reaction' },
+      { text: 'Set the note aside. Physical evidence is misleading. Ask the Little Prince about his relationship with the Rose.', next: 'rose_relationship' }
+    ]
+  },
+
+  prince_question: {
+    planet: 'B-612 — A Conversation',
+    art: 'b612',
+    depth: 1,
+    text: `
+      <p>The Little Prince thinks for a long time, his golden scarf catching the starlight.</p>
+
+      <span class="quote">"The King sent a message three days ago — he said my Rose was 'a subject in need of proper protection.' I did not reply. Then the Vain Man… he asked if he could 'display' her. I said no. The Lamplighter… no, he never asks for anything."</span>
+
+      <p>He pauses. <em>"But the Fox — the Fox was here. He said he only wanted to visit. We talked. When he left, he seemed… sad."</em></p>
+
+      <p>A small tear forms in the corner of his eye. <em>"What if she left because of something I did?"</em></p>
+
+      <div class="insight-box">The Prince suspects his own fault. This guilt may cloud his judgment — and yours. Be careful not to let his emotions direct the investigation.</div>
+    `,
+    choices: [
+      { text: 'Reassure him: "Let\'s follow the facts. Visit the King first — he made his desire known."', next: 'king_planet' },
+      { text: 'Explore his guilt: "Tell me about the last day you spent with the Rose."', next: 'rose_relationship', clue: 'rose_petal' },
+      { text: 'Follow the Fox lead — the Fox was the last visitor.', next: 'fox_planet' },
+      { text: 'Visit the Geographer — he charts all things. He may know where she went.', next: 'geo_planet', clue: 'geographer_map' }
+    ]
+  },
+
+  rose_motivation: {
+    planet: 'B-612 — The Rose\'s Story',
+    art: 'b612',
+    depth: 1,
+    text: `
+      <p>This is a wise question. You sit in the small patch of grass and think aloud:</p>
+
+      <p><em>"A rose is proud. Demanding. She wants to be admired, watered, and protected. But also — she is afraid. She hides behind her thorns."</em></p>
+
+      <p>The Little Prince nods slowly. <em>"She used to say: 'I am not at all afraid of tigers. But I do not like drafts.'"</em></p>
+
+      <span class="quote">"What if she was not stolen — but convinced? What if someone offered her something she wanted more than safety?"</span>
+
+      <p>The question hangs in the air like a small planet searching for its orbit.</p>
+
+      <div class="insight-box">Roses want to be seen and loved. The Rose left not because of malice — but because of longing.</div>
+    `,
+    choices: [
+      { text: 'Visit the Vain Man — he could offer applause and adoration.', next: 'vain_planet', clue: 'vain_mirror' },
+      { text: 'Visit the King — he could offer "importance," being a royal rose.', next: 'king_planet' },
+      { text: 'Search for the Fox — perhaps he tamed her trust gently.', next: 'fox_planet', clue: 'fox_secret' },
+      { text: 'Ask the Drunkard — sometimes the lonely are unexpectedly perceptive about love.', next: 'drunk_planet' }
+    ]
+  },
+
+  // ─────────────────────────────────────────────
+  king_planet: {
+    planet: 'Planet of the King',
+    art: 'king',
+    depth: 2,
+    text: `
+      <p>The King's planet is enormous — for a king who rules over nothing, he has decorated it with tremendous dignity. He sits on his throne, dressed in ermine, waiting for you to bow.</p>
+
+      <span class="quote">"Ah, the Inspector. Yes, I sent for the Rose. A King cannot have subjects without a court, and a Rose of such beauty clearly deserves to be ruled over properly."</span>
+
+      <p>You ask if he has the Rose. He draws himself up. <em>"I do not steal. I issued a Decree of Royal Invitation. Whether she accepted — that is another matter."</em></p>
+
+      <p>He shows you the Decree, stamped with great officialness. It is addressed to: <em>"The Unique Rose of B-612, My Loyal Subject-to-Be."</em></p>
+
+      <div class="insight-box">The King cannot imagine anyone refusing his command — but he is telling the truth that he did not physically take her. His crime is loneliness wrapped in authority.</div>
+    `,
+    choices: [
+      { text: 'Press him: "Did she respond? Did anyone carry your Decree to her?"', next: 'king_messenger', clue: 'kings_order' },
+      { text: 'Accept his innocence and move to another suspect.', next: 'choose_next_planet' },
+      { text: 'Accuse the King directly — his desire was clear and he had motive.', next: 'loss_false_accuse_king', label: 'danger' },
+      { text: 'Ask the King: "Who else might want to take her? You know all rulers of all planets."', next: 'king_intel' }
+    ]
+  },
+
+  king_messenger: {
+    planet: 'Planet of the King — The Messenger',
+    art: 'king',
+    depth: 3,
+    text: `
+      <p>The King shifts uncomfortably on his enormous throne.</p>
+
+      <span class="quote">"I… may have sent a messenger. The Snake. He passes between worlds easily. I asked him merely to deliver the invitation."</span>
+
+      <p>A cold feeling passes through you. The Snake. You remember something the Little Prince once said — the Snake offers a journey home.</p>
+
+      <p><em>"Did you ask the Snake to bring her back by force?"</em></p>
+
+      <span class="quote">"I ordered him to 'persuade her.' But what manner of persuasion…" The King looks away. "I did not specify."</span>
+
+      <div class="insight-box">A king who cannot admit his orders may have consequences is still responsible for them. But the Snake is the key — he has his own motives.</div>
+    `,
+    choices: [
+      { text: 'The Snake is the real agent here. Find the Snake immediately.', next: 'snake_trail', clue: 'snake_riddle' },
+      { text: 'Return to B-612 — the Snake may have left traces there.', next: 'b612_snake', clue: 'snake_riddle' },
+      { text: 'Ask the King if he knows where the Snake would have taken her.', next: 'king_intel' }
+    ]
+  },
+
+  king_intel: {
+    planet: 'Planet of the King — Information',
+    art: 'king',
+    depth: 3,
+    text: `
+      <p>The King, perhaps feeling guilty, offers his vast knowledge of the cosmos.</p>
+
+      <span class="quote">"The Vain Man once said to me — 'If only I had a rose instead of a hat-rack, every visitor would admire me twice.' The Drunkard — he weeps about a flower he once left behind on some other asteroid, long ago. And the Fox…"</span>
+
+      <p>He pauses meaningfully.</p>
+
+      <span class="quote">"The Fox understands taming. He tamed the Little Prince. And a tamed thing — it belongs to you. As you belong to it. If the Fox tamed the Rose…"</span>
+
+      <p>He does not finish the sentence. He doesn't need to.</p>
+
+      <div class="insight-box">Belonging and possession are not the same thing. The Fox knows this. But does the Rose?</div>
+    `,
+    choices: [
+      { text: 'Go to the Fox immediately — this is the strongest lead.', next: 'fox_planet', clue: 'fox_secret' },
+      { text: 'Visit the Vain Man first — his desire was direct and specific.', next: 'vain_planet' },
+      { text: 'Visit the Drunkard — his "forgotten flower" is too specific a detail to ignore.', next: 'drunk_planet' }
+    ]
+  },
+
+  // ─────────────────────────────────────────────
+  vain_planet: {
+    planet: 'Planet of the Vain Man',
+    art: 'vain',
+    depth: 2,
+    text: `
+      <p>The Vain Man stands before an enormous mirror, tipping his hat to his own reflection. When he sees you, his face lights up — another admirer!</p>
+
+      <span class="quote">"You've come to see me! How wonderfully sensible of you. Yes, I heard about the Rose. Beautiful creature. I did invite her to join my collection — my display of remarkable things."</span>
+
+      <p>He gestures to empty pedestals around his planet. Each one labeled: <em>Rare Sunset. Exceptional Cloud. Unique Rose — RESERVED.</em></p>
+
+      <p>But when you look in the mirror with him, you see something he doesn't see: his face, when not performing — hollow and aching.</p>
+
+      <div class="insight-box">The Vain Man collects beautiful things not to possess them, but to fill an emptiness. He doesn't want the Rose — he wants what the Rose would make others feel toward him.</div>
+    `,
+    choices: [
+      { text: '"Did she accept your invitation? Did you send anyone to bring her?"', next: 'vain_truth', clue: 'vain_mirror' },
+      { text: 'Look more carefully at the mirror — something in the reflection is unusual.', next: 'vain_mirror_clue' },
+      { text: 'Accuse him directly — he had a reserved pedestal with her name on it.', next: 'loss_false_accuse_vain', label: 'danger' },
+      { text: 'Ask him why he truly wants her — go beneath the performance.', next: 'vain_psychology' }
+    ]
+  },
+
+  vain_truth: {
+    planet: 'Planet of the Vain Man — The Truth',
+    art: 'vain',
+    depth: 3,
+    text: `
+      <p>The Vain Man's performance falters for just a moment.</p>
+
+      <span class="quote">"She… refused me. I sent her the most beautiful letter. Twelve pages. And she sent back one line:"</span>
+
+      <p>He pulls a tiny crumpled note from his pocket, smoothing it with elaborate dignity.</p>
+
+      <span class="quote">"'I do not need an audience. I need someone who waters me.' — The Rose"</span>
+
+      <p>The Vain Man looks genuinely hurt. <em>"I didn't take her. I couldn't take someone who didn't want to admire me back."</em></p>
+
+      <div class="insight-box">Rejected. Not a thief — but someone who revealed something important: the Rose knew what she needed. She was not passive.</div>
+    `,
+    choices: [
+      { text: '"Someone who waters me" — the Lamplighter is the only one who cares for things daily. Go there.', next: 'lamp_planet', clue: 'lamplighter_note' },
+      { text: 'The Rose sounds like she left deliberately. Go back and ask the Little Prince if he truly watered her.', next: 'rose_relationship', clue: 'rose_petal' },
+      { text: 'Continue to the Fox — he understands care and belonging.', next: 'fox_planet', clue: 'fox_secret' }
+    ]
+  },
+
+  vain_mirror_clue: {
+    planet: 'Planet of the Vain Man — The Mirror',
+    art: 'vain',
+    depth: 3,
+    text: `
+      <p>In the mirror's corner, almost invisible, you spot something extraordinary — a small <strong>rose petal</strong>, pressed between the glass and its frame. The Vain Man doesn't notice you take it.</p>
+
+      <p>The petal is from a <em>very specific rose</em> — with a tiny notch in the left side, like a birthmark. You've seen that notch in the Little Prince's drawings of his Rose.</p>
+
+      <p>The Vain Man, when you show him, goes pale. <em>"She was here. She visited me — of her own will. But she didn't stay."</em></p>
+
+      <span class="quote">"She said I was 'interesting but exhausting.' And then she left. Walking east, if asteroids have east."</span>
+
+      <div class="insight-box">The Rose visited the Vain Man voluntarily. She is exploring. She is not stolen — she is lost, or wandering.</div>
+    `,
+    choices: [
+      { text: 'East across the asteroids — that points toward the Fox\'s domain.', next: 'fox_planet', clue: 'fox_secret' },
+      { text: 'East also means the Lamplighter\'s tiny fast-spinning planet.', next: 'lamp_planet', clue: 'lamplighter_note' },
+      { text: 'The Rose is traveling freely. Go back to question the Little Prince about whether she ever expressed a wish to travel.', next: 'rose_relationship', clue: 'rose_petal' }
+    ]
+  },
+
+  vain_psychology: {
+    planet: 'Planet of the Vain Man — Beneath the Surface',
+    art: 'vain',
+    depth: 3,
+    text: `
+      <p>You lower your voice. <em>"Why do you really want her? Not for display — truly."</em></p>
+
+      <p>A long silence. The mirror shows the Vain Man without his hat, smaller than he appears.</p>
+
+      <span class="quote">"Because… she is loved. Truly loved. By someone for no reason except that she is herself. I have never been loved like that. People admire me but they don't… stay."</span>
+
+      <p>He turns away. <em>"I thought if I had her, some of that love might — it's foolish. I know."</em></p>
+
+      <div class="insight-box">Vanity is loneliness in disguise. The Vain Man wants to absorb love he cannot generate. He did not take the Rose — but his desire pointed you toward a deeper truth about why many characters want her.</div>
+    `,
+    choices: [
+      { text: 'Ask him where he thinks she might have gone if she left willingly.', next: 'vain_truth' },
+      { text: 'The one person who loves without vanity or authority is the Fox. Go there.', next: 'fox_planet', clue: 'fox_secret' },
+      { text: 'Head to the Lamplighter — duty without vanity might be what the Rose needed.', next: 'lamp_planet' }
+    ]
+  },
+
+  // ─────────────────────────────────────────────
+  drunk_planet: {
+    planet: 'Planet of the Drunkard',
+    art: 'drunkard',
+    depth: 2,
+    text: `
+      <p>The Drunkard sits surrounded by empty bottles, not with cruelty but with a terrible, soft sadness. He looks up when you arrive and his eyes are unexpectedly clear.</p>
+
+      <span class="quote">"I drink to forget that I drink. And I drink because I am ashamed. It is logical, isn't it? In a sad sort of way."</span>
+
+      <p>You ask about the Rose. He laughs — a sound like old bells.</p>
+
+      <span class="quote">"A rose visited here, yes. Pretty thing. Scared of the bottles, I think, but she didn't show it. She asked me one question: 'What does it feel like to be forgotten?'"</span>
+
+      <p>He picks up a bottle and puts it down again. <em>"I told her: it feels like being put under a glass every night and never knowing if the morning will bring someone to lift it."</em></p>
+
+      <div class="insight-box">The Rose asked about being forgotten. She identified with the Drunkard's isolation. She is searching for something — perhaps a more meaningful existence.</div>
+    `,
+    choices: [
+      { text: '"Did she say where she was going next?"', next: 'drunk_direction', clue: 'drunk_map' },
+      { text: '"The glass bell — she mentioned it. Did she seem afraid of her glass bell?"', next: 'drunk_glass_bell' },
+      { text: 'Show the Drunkard the note found on B-612 — "She deserves to be seen by more than one pair of eyes."', next: 'drunk_note_reaction' }
+    ]
+  },
+
+  drunk_direction: {
+    planet: 'The Drunkard\'s Map',
+    art: 'drunkard',
+    depth: 3,
+    text: `
+      <p>The Drunkard fumbles beneath the bottles and produces a crumpled map — drawn in wine-stained ink, but surprisingly precise.</p>
+
+      <span class="quote">"She left me this. Said: 'You'll need it more than I do. I know where I'm going now.' I couldn't read it at the time — I was celebrating forgetting something."</span>
+
+      <p>You study the map. It shows a path between asteroids, marked with a small rose symbol, ending at a planet drawn with a single lamp — the <strong>Lamplighter's planet.</strong></p>
+
+      <div class="insight-box">The Rose drew her own path. She had a destination. She chose the Lamplighter — the one person who works without reward, whose duty has no vanity in it.</div>
+    `,
+    choices: [
+      { text: 'Follow the map to the Lamplighter\'s planet immediately.', next: 'lamp_planet', clue: 'lamplighter_note' },
+      { text: 'Ask the Drunkard what the Rose said about the Lamplighter.', next: 'drunk_about_lamp' }
+    ]
+  },
+
+  drunk_glass_bell: {
+    planet: 'The Drunkard — The Bell Jar',
+    art: 'drunkard',
+    depth: 3,
+    text: `
+      <p>The Drunkard goes quiet.</p>
+
+      <span class="quote">"She said: 'He puts the bell jar over me at night. To protect me, he says. But sometimes I wonder — is the jar for the wind? Or is it to keep me from leaving?'"</span>
+
+      <p>A long silence fills the planet.</p>
+
+      <span class="quote">"I know that feeling," he said softly. "The bottles are my bell jar. I hide in them so nothing can hurt me. But nothing can reach me either."</span>
+
+      <p>He looks at the floor. <em>"The Rose didn't want to be stolen. She wanted to be… let out."</em></p>
+
+      <div class="insight-box">The glass bell jar — symbol of protection and imprisonment simultaneously. The Rose's disappearance is an act of liberation, not theft. The Little Prince's love, while genuine, was also suffocating.</div>
+    `,
+    choices: [
+      { text: 'This changes everything. Return to the Little Prince with this insight.', next: 'return_to_prince', clue: 'true_reason' },
+      { text: 'Find the Rose first — at the Lamplighter\'s planet, where freedom and duty meet.', next: 'lamp_planet', clue: 'lamplighter_note' }
+    ]
+  },
+
+  drunk_note_reaction: {
+    planet: 'The Drunkard — Reading the Note',
+    art: 'drunkard',
+    depth: 3,
+    text: `
+      <p>The Drunkard reads the note. His face changes.</p>
+
+      <span class="quote">"'Deserves to be seen by more than one pair of eyes.' That's not a thief's note. That's a… liberator's note. Or someone who loves her and wants more for her than a tiny asteroid."</span>
+
+      <p>He pauses. <em>"That handwriting though — I've seen it. The Fox writes like that. Careful loops. Like someone who knows words are precious."</em></p>
+
+      <div class="insight-box">The Fox wrote the note. But the Fox does not steal — the Fox tames. This means the Rose went willingly, drawn by something the Fox offered.</div>
+    `,
+    choices: [
+      { text: 'Go to the Fox — this is now certain.', next: 'fox_planet', clue: 'fox_secret' },
+      { text: 'First visit the Lamplighter — the map pointed there. Perhaps the Fox sent her onward.', next: 'lamp_planet' }
+    ]
+  },
+
+  // ─────────────────────────────────────────────
+  lamp_planet: {
+    planet: 'Planet of the Lamplighter',
+    art: 'lamplighter',
+    depth: 3,
+    text: `
+      <p>The Lamplighter's planet spins so fast that day becomes night every minute. He runs constantly — lighting the lamp, snuffing the lamp, lighting, snuffing — following orders from a long-ago regulation that no longer makes sense.</p>
+
+      <p>When you arrive, he stops. Just for a moment. <em>His face is exhausted but his eyes are kind.</em></p>
+
+      <span class="quote">"The Rose? Yes. She came to me. She sat very quietly and watched me work. After a while she said: 'You are the only one I have met who serves something other than himself.'"</span>
+
+      <p>He lights the lamp. Snuffs it.</p>
+
+      <span class="quote">"I told her: I serve a rule. I don't even know why anymore. She laughed and said: 'At least you show up.'"</span>
+
+      <div class="insight-box">The Rose admired reliability. She ached for someone who showed up — every day, without being asked. She was lonely on B-612 between the Little Prince's long adventures.</div>
+    `,
+    choices: [
+      { text: '"Is she still here? Is she safe?"', next: 'lamp_rose_here', clue: 'lamplighter_note' },
+      { text: '"Did she say why she left B-612? What was she searching for?"', next: 'lamp_rose_reasons', clue: 'true_reason' },
+      { text: '"Did anyone else come looking for her?"', next: 'lamp_others' }
+    ]
+  },
+
+  lamp_rose_here: {
+    planet: 'The Lamplighter — She Was Here',
+    art: 'lamplighter',
+    depth: 4,
+    text: `
+      <p>The Lamplighter points to the base of the lamp. There, in a small circle of warmed stone, <em>soil disturbed as if something rooted recently.</em></p>
+
+      <span class="quote">"She stayed three nights. I watered her each morning before the first light. She said it was the first time she'd been watered without having to ask."</span>
+
+      <p>He pauses in his running.</p>
+
+      <span class="quote">"She left a message for the Little Prince. I was to give it to whoever came to find her."</span>
+
+      <p>He hands you a folded piece of paper, sealed with a red rose petal.</p>
+
+      <div class="insight-box">The letter is the key. The Rose's truth, in her own words.</div>
+    `,
+    choices: [
+      { text: 'Read the letter.', next: 'rose_letter', clue: 'true_reason' }
+    ]
+  },
+
+  lamp_rose_reasons: {
+    planet: 'The Lamplighter — Her Reasons',
+    art: 'lamplighter',
+    depth: 4,
+    text: `
+      <p>The Lamplighter thinks carefully.</p>
+
+      <span class="quote">"She said: 'I love him. But he left me alone for very long times. And when he was with me, he put the glass bell over me and worried. He never just… sat with me in silence. He was always going somewhere.'"</span>
+
+      <p>He lights the lamp. The small circle of warmth fills the planet.</p>
+
+      <span class="quote">"She said: 'I am afraid that I am only unique because he says so. I want to find out if I am unique on my own terms.'"</span>
+
+      <div class="insight-box">The Rose left to discover her own worth — not to hurt the Prince, but because she had never been given the chance to exist without his defining gaze.</div>
+    `,
+    choices: [
+      { text: 'She has the Fox to guide her now. Go to the Fox to understand the full picture.', next: 'fox_planet', clue: 'fox_secret' },
+      { text: 'Return to the Little Prince with this understanding — he must hear this.', next: 'return_to_prince', clue: 'true_reason' }
+    ]
+  },
+
+  lamp_others: {
+    planet: 'The Lamplighter — Other Visitors',
+    art: 'lamplighter',
+    depth: 4,
+    text: `
+      <p>The Lamplighter nods. <em>"The Fox came. He brought her here and stayed for one night. He asked me to keep her warm until she was ready to go back."</em></p>
+
+      <span class="quote">"He said: 'She needs to know she can leave before she can choose to stay.'"</span>
+
+      <p>He snuffs the lamp.</p>
+
+      <span class="quote">"Then the Snake came."</span>
+
+      <p>The word hangs in the warm air like cold smoke.</p>
+
+      <span class="quote">"I told it she was not here. It believed me — or chose to. And it left."</span>
+
+      <div class="insight-box">The Fox was protecting the Rose. The Snake was hunting her — sent by the King. The Fox's motive was care, not possession.</div>
+    `,
+    choices: [
+      { text: 'Go to the Fox — he is the protector, not the thief.', next: 'fox_planet', clue: 'fox_secret' },
+      { text: 'Follow the Snake\'s trail — it may lead back to the King and a confrontation.', next: 'snake_trail', clue: 'snake_riddle' }
+    ]
+  },
+
+  // ─────────────────────────────────────────────
+  fox_planet: {
+    planet: 'The Wheat Fields — The Fox',
+    art: 'fox',
+    depth: 3,
+    text: `
+      <p>You find the Fox in a field of wheat that glows like amber in a light that comes from nowhere in particular. He watches you approach with calm, amber eyes.</p>
+
+      <span class="quote">"I wondered when you would come. Sit down, please — you'll tire yourself standing."</span>
+
+      <p>You ask about the Rose.</p>
+
+      <span class="quote">"I did not steal her. I found her wandering in the asteroid belt, confused and frightened. She had left on her own and then — realized she did not know where she was going."</span>
+
+      <p>He curls his tail around his paws.</p>
+
+      <span class="quote">"I brought her somewhere safe. And I left her a message explaining why she was right to leave — and right to go back."</span>
+
+      <div class="insight-box">The Fox understands relationships better than anyone. He knows the difference between taming and imprisoning. He saved the Rose — from the Snake, and from aimless wandering.</div>
+    `,
+    choices: [
+      { text: '"Where is she now? Is she safe?"', next: 'fox_location' },
+      { text: '"You wrote the note — \'She deserves to be seen by more than one pair of eyes.\' What did you mean?"', next: 'fox_note_meaning', clue: 'fox_secret' },
+      { text: '"The Little Prince is suffering. How could you not tell him immediately?"', next: 'fox_why_silent' },
+      { text: 'You realize: the Fox is the central figure. He orchestrated this. Accuse him.', next: 'loss_fox_accuse', label: 'danger' }
+    ]
+  },
+
+  fox_location: {
+    planet: 'The Fox — Finding the Rose',
+    art: 'fox',
+    depth: 4,
+    text: `
+      <p>The Fox smiles — not smugly, but with the warmth of a completed thing.</p>
+
+      <span class="quote">"She is back on B-612. She returned two hours ago, before you arrived here. She went back on her own. The Lamplighter lent her his star-compass."</span>
+
+      <p>He stands up.</p>
+
+      <span class="quote">"But she returned with a condition. She would not go back under the bell jar. She told the Prince: 'You may worry about me. But you may not cage me. I need both the wind and you.'"</span>
+
+      <p>He looks at you carefully.</p>
+
+      <span class="quote">"The investigation is over, Inspector. But the real question was never where she went — it was why. Do you understand why?"</span>
+
+      <div class="insight-box">The Fox's question is the turning point. The mystery was never about theft — it was about love, freedom, and the danger of protecting someone so much you suffocate them.</div>
+    `,
+    choices: [
+      { text: '"Yes. The Rose needed to discover she could leave in order to truly choose to stay."', next: 'win_understanding' },
+      { text: '"I understand that the Little Prince must change how he loves her."', next: 'win_understanding' },
+      { text: '"I still think someone should be held responsible for the panic this caused."', next: 'loss_miss_point' }
+    ]
+  },
+
+  fox_note_meaning: {
+    planet: 'The Fox — On Being Seen',
+    art: 'fox',
+    depth: 4,
+    text: `
+      <p>The Fox stands and walks through the wheat, which glows as it touches him.</p>
+
+      <span class="quote">"The Rose is unique — the Prince told her so, a thousand times. But his uniqueness was about possession. 'You are my rose.' Not: 'You are unique. You exist. The world is richer for you.'"</span>
+
+      <p>He pauses by a single standing wheat stalk.</p>
+
+      <span class="quote">"When I tamed the Little Prince, this wheat became beautiful to me because of him. That is love. But it does not require the wheat to stay in one field. The love is in what you carry with you."</span>
+
+      <div class="insight-box">The Fox reveals the philosophical heart of the story: love is not possession. The Rose being seen by others does not diminish the Prince's love — it completes hers.</div>
+    `,
+    choices: [
+      { text: '"The Rose has already returned. You helped her go and come back."', next: 'fox_location' },
+      { text: 'Ask the Fox: "Did you tame the Rose too?"', next: 'fox_tamed_rose' }
+    ]
+  },
+
+  fox_tamed_rose: {
+    planet: 'The Fox — Taming and Freeing',
+    art: 'fox',
+    depth: 5,
+    text: `
+      <p>The Fox tilts his head.</p>
+
+      <span class="quote">"No. You cannot tame a rose. Roses tame you. That is what the Prince never understood — he thought he was responsible for her. But she was responsible for him, too. She made him gentle. She made him return."</span>
+
+      <p>He lies down in the wheat.</p>
+
+      <span class="quote">"I did not tame her. I simply reminded her that the Prince's love, even with all its imperfections, is the only love that looks at her every evening and says: 'You are mine and I am yours, and that is not a cage — it is a home.'"</span>
+
+      <p>The Fox closes his eyes.</p>
+
+      <span class="quote">"She understood. She went back. Go and see."</span>
+
+      <div class="insight-box">The true mystery is solved: love that allows freedom is stronger than love that protects through control. The Rose left to confirm this — and returned transformed.</div>
+    `,
+    choices: [
+      { text: 'Return to B-612 — where the Rose and the Prince are waiting.', next: 'win_return_b612' }
+    ]
+  },
+
+  fox_why_silent: {
+    planet: 'The Fox — On Silence',
+    art: 'fox',
+    depth: 4,
+    text: `
+      <p>The Fox meets your frustration calmly.</p>
+
+      <span class="quote">"Because if I had told him immediately, he would have run to her and brought her back. And nothing would have changed. She needed the journey. He needed the fear."</span>
+
+      <p>He tilts his amber ear toward the stars.</p>
+
+      <span class="quote">"Sometimes love requires letting someone get lost so they can find their way home by choice, not by rescue."</span>
+
+      <div class="insight-box">The Fox made a calculated emotional decision — causing short-term pain for long-term understanding. Whether this was right is a philosophical question without a clean answer.</div>
+    `,
+    choices: [
+      { text: '"I understand. Tell me where she is."', next: 'fox_location' },
+      { text: 'Accept his reasoning — go see the Rose yourself at B-612.', next: 'win_return_b612' }
+    ]
+  },
+
+  // ─────────────────────────────────────────────
+  geo_planet: {
+    planet: 'Planet of the Geographer',
+    art: 'geographer',
+    depth: 2,
+    text: `
+      <p>The Geographer is an enormous man buried in enormous books. He records seas, mountains, rivers — but never visits them. He considers visitors a nuisance, and roses <em>"ephemeral — not worth recording."</em></p>
+
+      <p>But when you ask about paths between asteroids, he becomes suddenly useful. He has been mapping all movement in this sector of the galaxy for three hundred years.</p>
+
+      <span class="quote">"A moving rose signature — ah yes. Petal-weight, fragrance gradient, chlorophyll trail. I track all botanical movement for the record."</span>
+
+      <p>He flips through charts.</p>
+
+      <span class="quote">"Your rose passed through six asteroids over two days. Vain Man's planet — she left. Drunkard's planet — she stayed briefly. Then the Lamplighter's. Then… she reversed course."</span>
+
+      <div class="insight-box">The Geographer's data reveals the Rose's journey as deliberate exploration, not abduction. She visited, observed, and made choices.</div>
+    `,
+    choices: [
+      { text: '"She reversed course — back toward B-612? Is she already home?"', next: 'geo_home', clue: 'geographer_map' },
+      { text: '"Who else\'s path crossed hers during this journey?"', next: 'geo_cross_paths' },
+      { text: '"Is there any sign of a snake-signature in her path?"', next: 'geo_snake' }
+    ]
+  },
+
+  geo_home: {
+    planet: 'Geographer — The Route Home',
+    art: 'geographer',
+    depth: 3,
+    text: `
+      <p>The Geographer traces the map.</p>
+
+      <span class="quote">"Based on velocity and trajectory — she should reach B-612 within the hour. If she hasn't already."</span>
+
+      <p>He stamps a route map with extraordinary efficiency and hands it to you.</p>
+
+      <span class="quote">"I should note — the route home passes through the Fox's quadrant. She appears to have stopped there for some time. Eight hours, approximately."</span>
+
+      <p>He peers over his spectacles. <em>"Whatever the Fox told her seemed to have settled her direction considerably."</em></p>
+
+      <div class="insight-box">The Fox is the turning point in the Rose's journey. The Geographer's data confirms what you've suspected — the Fox guided her home.</div>
+    `,
+    choices: [
+      { text: 'Go directly to B-612 — she may already be there.', next: 'win_return_b612', clue: 'true_reason' },
+      { text: 'Stop at the Fox\'s planet first — understand his role.', next: 'fox_planet', clue: 'fox_secret' }
+    ]
+  },
+
+  geo_cross_paths: {
+    planet: 'Geographer — Crossed Paths',
+    art: 'geographer',
+    depth: 3,
+    text: `
+      <p>The Geographer finds three crossed paths:</p>
+
+      <p><em>The Fox</em> — tracking parallel to the Rose, clearly guiding. <em>The Snake</em> — following at a distance, then stopped suddenly (diverted, perhaps). And one more trace, faint but unmistakable:</p>
+
+      <span class="quote">"This third trace — it is the Little Prince's scarf. He was following her for part of the journey. But he turned back. He let her go."</span>
+
+      <div class="insight-box">The Little Prince followed her — and then chose to stop. He let her have her journey. This is perhaps the most profound choice in the whole mystery.</div>
+    `,
+    choices: [
+      { text: 'Return to B-612 and ask the Little Prince about this directly.', next: 'return_to_prince', clue: 'true_reason' },
+      { text: 'Go to the Fox — the full story is there.', next: 'fox_planet', clue: 'fox_secret' }
+    ]
+  },
+
+  geo_snake: {
+    planet: 'Geographer — The Snake\'s Trail',
+    art: 'geographer',
+    depth: 3,
+    text: `
+      <p>The Geographer shudders slightly at the word "snake."</p>
+
+      <span class="quote">"There is a snake-signature, yes. Following the rose's trail — but it diverged at the Lamplighter's planet. As if it was… redirected. Or chose to leave."</span>
+
+      <p>He closes the book firmly. <em>"The Snake obeys only two things: the King's commands and its own riddles. Something stopped it at the Lamplighter's planet."</em></p>
+
+      <div class="insight-box">The Lamplighter diverted the Snake. His quiet, consistent presence protected the Rose — not through power, but through the sheer unremarkable honesty of daily duty.</div>
+    `,
+    choices: [
+      { text: 'The Rose is safe from the Snake. Go to the Fox to complete the picture.', next: 'fox_planet', clue: 'fox_secret' },
+      { text: 'Return to the King and confront him about sending the Snake.', next: 'king_messenger' }
+    ]
+  },
+
+  // ─────────────────────────────────────────────
+  rose_relationship: {
+    planet: 'B-612 — The Heart of the Matter',
+    art: 'b612',
+    depth: 2,
+    text: `
+      <p>You sit with the Little Prince as the last of B-612's three volcanoes lets out a small, polite puff of smoke.</p>
+
+      <p>He speaks slowly. <em>"I used to put the glass bell over her every night. To protect her from the wind. She said she didn't need it. I did it anyway."</em></p>
+
+      <span class="quote">"She also said she wasn't afraid of tigers. She said it four times, that she wasn't afraid. I think — I think she was very afraid. But she didn't want me to see it."</span>
+
+      <p>He turns a fallen rose petal over in his hands.</p>
+
+      <span class="quote">"I left her alone a lot. On my travels. I thought — she has the bell jar. She is safe. But safe is not the same as happy. I know that now."</span>
+
+      <div class="insight-box">The Little Prince is beginning to understand his own role in the Rose's departure. This self-knowledge is more valuable than any clue.</div>
+    `,
+    choices: [
+      { text: 'Ask: "Did she ever tell you what she truly needed from you?"', next: 'prince_rose_needs', clue: 'true_reason' },
+      { text: 'Say: "Let\'s find her together. Knowing this, you\'ll be ready."', next: 'choose_next_planet' },
+      { text: 'Follow the Drunkard\'s map — it leads directly to the Lamplighter.', next: 'lamp_planet', clue: 'lamplighter_note' }
+    ]
+  },
+
+  prince_rose_needs: {
+    planet: 'B-612 — What the Rose Needed',
+    art: 'b612',
+    depth: 3,
+    text: `
+      <p>A long pause. The stars wheel overhead.</p>
+
+      <span class="quote">"She told me once: 'I do not want you to admire me because I am unique. I want you to stay because you want to.' I thought — that was the same thing."</span>
+
+      <p>He looks at the empty space where the Rose stood.</p>
+
+      <span class="quote">"It is not the same thing. I understand now. I tamed her. But I did not… release her. I should have told her: you can go. And I will be here when you return. Because I choose to be."</span>
+
+      <div class="insight-box">The Little Prince has arrived at the central truth: love that allows freedom is not weaker than love that holds on. It is stronger, because it is chosen each day.</div>
+    `,
+    choices: [
+      { text: 'Now go find her. Go to the Fox — who understands this better than anyone.', next: 'fox_planet', clue: 'fox_secret' },
+      { text: 'Check the Lamplighter\'s planet — the map leads there.', next: 'lamp_planet', clue: 'lamplighter_note' }
+    ]
+  },
+
+  return_to_prince: {
+    planet: 'B-612 — Returning',
+    art: 'b612',
+    depth: 4,
+    text: `
+      <p>You return to B-612 with everything you've learned. The Little Prince is sitting in the exact spot where the Rose once grew, his arms around his knees.</p>
+
+      <p>You tell him what you know. You tell him about the Drunkard's words, the Vain Man's empty pedestal, the Lamplighter's warmth, the Fox's wisdom.</p>
+
+      <p>He is very still for a long time.</p>
+
+      <span class="quote">"She left because I loved her badly. Not because I didn't love her."</span>
+
+      <p><em>And then — a sound. A rustle. And the unmistakable scent of rose petals on the wind.</em></p>
+
+      <p>The Rose is coming home.</p>
+
+      <div class="insight-box">The most profound reunion is one where both parties return changed.</div>
+    `,
+    choices: [
+      { text: 'Stay and witness the reunion. The investigation is complete.', next: 'win_understanding' }
+    ]
+  },
+
+  choose_next_planet: {
+    planet: 'The Asteroid Belt — Choose Your Path',
+    art: 'b612',
+    depth: 2,
+    text: `
+      <p>The galaxy stretches before you. You have gathered some clues, but the trail is still warm. Where do you look next?</p>
+    `,
+    choices: [
+      { text: 'Visit the Planet of the King', next: 'king_planet' },
+      { text: 'Visit the Planet of the Vain Man', next: 'vain_planet' },
+      { text: 'Visit the Planet of the Drunkard', next: 'drunk_planet' },
+      { text: 'Visit the Lamplighter\'s Planet', next: 'lamp_planet' },
+      { text: 'Seek out the Fox', next: 'fox_planet' },
+      { text: 'Consult the Geographer', next: 'geo_planet' }
+    ]
+  },
+
+  // ─────────────────────────────────────────────
+  // LOSS / DEAD END SCENES
+  // ─────────────────────────────────────────────
+
+  snake_trail: {
+    planet: 'Following the Snake',
+    art: 'b612',
+    depth: 3,
+    text: `
+      <p>You follow the Snake's cold trail through the asteroid belt. It leads you further and further from B-612, into darker, colder regions of space.</p>
+
+      <p>The Snake, when you finally find it, coiled on a dead asteroid, regards you with yellow eyes.</p>
+
+      <span class="quote">"You are looking for the Rose. She is not with me. I was sent to fetch her — but the Lamplighter turned me aside with such simple honesty that I felt, for the first time in centuries, ashamed of my errand."</span>
+
+      <p>It uncoils slowly. <em>"I left her to her own path. Some things should not be captured."</em></p>
+
+      <p>You have spent valuable time chasing the Snake when the Rose was already heading home.</p>
+
+      <div class="insight-box">Following the most dramatic lead sometimes leads away from the truth. The Snake — the most sinister figure — turned out to have acted with more restraint than the King who sent it.</div>
+    `,
+    choices: [
+      { text: 'Return to B-612 — the Rose may already be home.', next: 'return_to_prince', clue: 'snake_riddle' }
+    ]
+  },
+
+  b612_snake: {
+    planet: 'B-612 — Snake Traces',
+    art: 'b612',
+    depth: 2,
+    text: `
+      <p>You find traces of the Snake on B-612 — scales, the cold indent in the grass where it coiled and waited. But the Rose's scent here is faint. She had already gone when the Snake arrived.</p>
+
+      <p>The Snake was looking for something that was no longer there. A near-miss.</p>
+
+      <div class="insight-box">The Rose's departure, though frightening, may have saved her from something darker. Timing matters in love and in danger.</div>
+    `,
+    choices: [
+      { text: 'The Snake came from the King\'s messenger service. Go confront the King.', next: 'king_messenger', clue: 'kings_order' },
+      { text: 'Follow the Rose\'s trail — not the Snake\'s. Go to the Vain Man\'s planet first.', next: 'vain_planet' }
+    ]
+  },
+
+  prince_note_reaction: {
+    planet: 'B-612 — The Note',
+    art: 'b612',
+    depth: 2,
+    text: `
+      <p>The Little Prince reads the note twice. His expression is unreadable — part wonder, part hurt.</p>
+
+      <span class="quote">"'She deserves to be seen by more than one pair of eyes.' That is — I have thought that too, sometimes. She is so beautiful and I am so far away, so often. What if she is being admired by no one?"</span>
+
+      <p>He folds the note carefully.</p>
+
+      <span class="quote">"But whoever wrote this — they decided for her. They did not ask what she wanted. That is the part that is wrong."</span>
+
+      <div class="insight-box">The Little Prince's insight cuts to the ethical heart: even well-intentioned intervention without consent is a violation of the other person's agency.</div>
+    `,
+    choices: [
+      { text: '"The orange fur points to the Fox. Let\'s go there."', next: 'fox_planet', clue: 'fox_secret' },
+      { text: '"Perhaps she was asked. Perhaps she chose to go. We need more information."', next: 'choose_next_planet' },
+      { text: 'Visit the Geographer — he tracks all movement and may know the Rose\'s path.', next: 'geo_planet', clue: 'geographer_map' }
+    ]
+  },
+
+  // ─────────────────────────────────────────────
+  // LOSS ENDINGS
+  // ─────────────────────────────────────────────
+
+  loss_false_accuse_king: {
+    planet: 'Loss — A King\'s Fury',
+    art: 'king',
+    depth: 3,
+    loss: true,
+    text: `<div class="outcome-wrap loss-screen">
+      <span class="outcome-icon">👑</span>
+      <div class="outcome-title">A False Accusation</div>
+      <div class="outcome-text">You accuse the King before gathering enough evidence. The King, furious, banishes you from his planet and sends word across the asteroid belt that the Cosmic Inspector is not to be trusted.<br><br>The Rose — who had already returned to B-612 on her own — hears of the commotion. She decides it is better to stay hidden than to return to a planet surrounded by controversy.<br><br>She remains on the Lamplighter's planet. The Little Prince waits. Nothing is resolved.</div>
+      <div class="outcome-quote">"One must never judge before gathering all the facts. Even kings deserve that." — A Cosmic Principle</div>
+    </div>`,
+    choices: [{ text: '↻ Begin Again', restart: true }]
+  },
+
+  loss_false_accuse_vain: {
+    planet: 'Loss — The Vain Man\'s Despair',
+    art: 'vain',
+    depth: 3,
+    loss: true,
+    text: `<div class="outcome-wrap loss-screen">
+      <span class="outcome-icon">🪞</span>
+      <div class="outcome-title">The Mirror Breaks</div>
+      <div class="outcome-text">You accuse the Vain Man. He is so devastated by the public humiliation — an accusation is the worst possible audience — that he retreats entirely into his mirror and refuses to speak.<br><br>With him silenced, you never learn that he saw the Rose leave voluntarily, or that she visited the Vain Man of her own accord before moving on. A crucial witness lost to careless accusation.<br><br>The investigation stalls. The Rose stays lost.</div>
+      <div class="outcome-quote">"Vanity is fragile. So is trust." — The Fox</div>
+    </div>`,
+    choices: [{ text: '↻ Begin Again', restart: true }]
+  },
+
+  loss_fox_accuse: {
+    planet: 'Loss — The Fox\'s Silence',
+    art: 'fox',
+    depth: 4,
+    loss: true,
+    text: `<div class="outcome-wrap loss-screen">
+      <span class="outcome-icon">🦊</span>
+      <div class="outcome-title">The Fox Goes Silent</div>
+      <div class="outcome-text">You accuse the Fox. He looks at you with his calm amber eyes and says only: "You have not understood."<br><br>He does not tell you where the Rose is. He does not tell you about the letter, the map, the Snake, the Lamplighter's protection. His silence is complete and final.<br><br>Without his knowledge, you wander the asteroid belt for weeks. The Rose, waiting for a sign it was safe to return, eventually believes she has been forgotten — and chooses a different life, on a distant star.<br><br>The Little Prince never sees his Rose again.</div>
+      <div class="outcome-quote">"You become responsible, forever, for what you have tamed." — The Fox</div>
+    </div>`,
+    choices: [{ text: '↻ Begin Again', restart: true }]
+  },
+
+  loss_miss_point: {
+    planet: 'Loss — Missing the Meaning',
+    art: 'fox',
+    depth: 5,
+    loss: true,
+    text: `<div class="outcome-wrap loss-screen">
+      <span class="outcome-icon">🌑</span>
+      <div class="outcome-title">The Wrong Conclusion</div>
+      <div class="outcome-text">You insist on consequences. Someone must be held responsible. You file reports, name suspects, create bureaucratic chaos across the asteroid belt.<br><br>The Rose, watching from a distance, sees that her departure has created not understanding but conflict. She decides that her return will only cause more trouble.<br><br>She stays away.<br><br>The Little Prince, surrounded by your reports and accusations, grows older and sadder. He still watches sunsets — forty-four times each day. But now they remind him only of what he lost.<br><br>You solved nothing. You found everyone guilty and no one healed.</div>
+      <div class="outcome-quote">"It is only with the heart that one can see rightly; what is essential is invisible to the eye." — Antoine de Saint-Exupéry</div>
+    </div>`,
+    choices: [{ text: '↻ Begin Again', restart: true }]
+  },
+
+  // ─────────────────────────────────────────────
+  // WIN ENDINGS
+  // ─────────────────────────────────────────────
+
+  win_understanding: {
+    planet: 'B-612 — The Rose Returns',
+    art: 'final',
+    depth: 5,
+    win: true,
+    text: `<div class="outcome-wrap win-screen">
+      <span class="outcome-icon">🌹</span>
+      <div class="outcome-title">The Rose Comes Home</div>
+      <div class="outcome-text">You return to B-612 in the soft light of its smallest sunrise.<br><br>The Rose is there. Not under her bell jar — standing open in the small warm wind, her petals trembling with something between courage and joy.<br><br>The Little Prince does not run to her. He walks. Slowly. And when he reaches her, he kneels in the grass beside her and says simply: "I am glad you are back. I am glad you went."<br><br>The Rose, for once in her life, does not pretend she isn't afraid. She says: "I needed to know I could leave. Now I know I want to stay."<br><br>You understand the truth of the case: the Rose was never stolen. She was temporarily lost — to herself, and to the Prince's understanding of love. What looked like a theft was a metamorphosis.<br><br>As you prepare to leave B-612, the Fox appears at the edge of the asteroid and tips an invisible hat in your direction.<br><br><em>The investigation is complete. The real mystery was never where the Rose went — but what love truly means.</em></div>
+      <div class="outcome-quote">"It is the time you have wasted for your rose that makes your rose so important." — Antoine de Saint-Exupéry</div>
+    </div>`,
+    choices: [{ text: '✦ Play Again — A Different Path', restart: true }]
+  },
+
+  win_return_b612: {
+    planet: 'B-612 — Coming Home',
+    art: 'final',
+    depth: 5,
+    win: true,
+    text: `<div class="outcome-wrap win-screen">
+      <span class="outcome-icon">✨</span>
+      <div class="outcome-title">What Was Always True</div>
+      <div class="outcome-text">You arrive at B-612 to find the reunion already in quiet progress.<br><br>The Rose stands in her usual spot, but the bell jar is gone — removed by the Little Prince himself, earlier that morning. He had understood, even before you told him.<br><br>"I followed her," he admits quietly. "For a while. Then I turned back. Because I realized: if I brought her home by following her, she would always wonder if she could have found a different home. And I would always wonder if she stayed from love or from being found."<br><br>He had let her go, and trusted her.<br><br>She had gone, and come back.<br><br>Your case file closes itself. Under "Crime Committed" you write: None. Under "What Was Found" you write: Everything that matters.<br><br>The stars above B-612 are exceptionally bright tonight. Somewhere among them, the Fox is watching the wheat turn gold.</div>
+      <div class="outcome-quote">"One sees clearly only with the heart. Anything essential is invisible to the eyes." — Antoine de Saint-Exupéry</div>
+    </div>`,
+    choices: [{ text: '✦ Play Again — Another Investigation', restart: true }]
+  },
+
+  about_lamp: {
+    planet: 'Lamplighter — About the Rose',
+    art: 'lamplighter',
+    depth: 4,
+    text: `<p>Redirecting…</p>`,
+    choices: [{ text: 'Continue', next: 'lamp_rose_here' }]
+  }
+};
+
+// ═══════════════════════════════════════════════════════════
+//  ENGINE
+// ═══════════════════════════════════════════════════════════
+
+function addClue(key) {
+  if (!key || state.clues.has(key)) return;
+  state.clues.add(key);
+  renderClues();
+}
+
+function renderClues() {
+  const panel = document.getElementById('clue-panel');
+  panel.innerHTML = '';
+  if (state.clues.size === 0) {
+    panel.innerHTML = '<span style="font-size:0.78rem;opacity:0.4;font-style:italic;padding:4px 0;">No clues gathered yet…</span>';
+    return;
+  }
+  state.clues.forEach(k => {
+    const tag = document.createElement('span');
+    tag.className = 'clue-tag';
+    tag.textContent = CLUES[k] || k;
+    panel.appendChild(tag);
+  });
+}
+
+function updateProgress(depth) {
+  document.querySelectorAll('.p-star').forEach(star => {
+    const s = parseInt(star.dataset.s);
+    star.classList.toggle('lit', s <= depth);
+  });
+}
+
+function transitionTo(id) {
+  const veil = document.getElementById('veil');
+  veil.classList.add('active');
+  setTimeout(() => {
+    renderScene(id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => veil.classList.remove('active'), 60);
+  }, 400);
+}
+
+function renderScene(id) {
+  const scene = SCENES[id];
+  if (!scene) { console.warn('Scene not found:', id); return; }
+
+  state.visited.add(id);
+  state.depth = Math.max(state.depth, scene.depth || 0);
+
+  // Re-trigger card animation
+  const card = document.getElementById('scene-card');
+  card.style.animation = 'none';
+  void card.offsetWidth;
+  card.style.animation = 'cardIn 0.5s cubic-bezier(0.34,1.2,0.64,1) both';
+
+  // Planet label
+  document.getElementById('planet-label').textContent = scene.planet || '';
+
+  // Illustration
+  const artEl = document.getElementById('scene-svg-art');
+  artEl.innerHTML = ILLUSTRATIONS[scene.art] || ILLUSTRATIONS.b612;
+
+  // Update clues (if scene grants them on arrival)
+  updateProgress(scene.depth || 0);
+  renderClues();
+
+  // Narrative
+  document.getElementById('scene-narrative').innerHTML = scene.text || '';
+
+  // Choices
+  const wrap = document.getElementById('choices-wrap');
+  wrap.innerHTML = '';
+
+  if (scene.choices) {
+    scene.choices.forEach((c, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn' + (c.label === 'danger' ? ' danger' : '');
+      btn.dataset.idx = String.fromCharCode(9312 + i); // ①②③…
+      btn.textContent = c.text;
+
+      btn.addEventListener('click', () => {
+        if (c.clue) addClue(c.clue);
+
+        if (c.restart) {
+          state.clues.clear();
+          state.depth = 0;
+          state.visited.clear();
+          renderClues();
+          updateProgress(0);
+          transitionTo('intro');
+          return;
+        }
+
+        if (c.next) {
+          transitionTo(c.next);
+        }
+      });
+
+      wrap.appendChild(btn);
+    });
+  }
+}
+
+// ── Boot ──
+renderClues();
+transitionTo('intro');
+</script>
+</body>
+</html>
